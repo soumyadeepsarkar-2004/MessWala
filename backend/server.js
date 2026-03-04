@@ -61,11 +61,6 @@ app.use('/api/menu', menuRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/tasks', taskRoutes);
 
-// Health check
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
-});
-
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
@@ -91,19 +86,78 @@ if (!process.env.MONGO_URI) {
 
 const mongoUri = process.env.MONGO_URI;
 
-mongoose
-  .connect(mongoUri)
-  .then(() => {
-    console.log('✅ MongoDB connected successfully');
-    app.listen(PORT, '0.0.0.0', () => {
-      console.log(`🚀 MessWala server running on port ${PORT}`);
-    });
-  })
-  .catch((err) => {
-    console.error('❌ MongoDB connection error:', err.message);
-    // Do not exit immediately, log robustly
-    console.error('Check your MongoDB Atlas Network Access (IP Whitelist).');
-    setTimeout(() => process.exit(1), 2000);
+// Start the HTTP server immediately so Railway sees a healthy port binding
+// (prevents Railway from marking the service as crashed during DB connection retries)
+const server = app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 MessWala server listening on port ${PORT}`);
+});
+
+// Health check returns DB status
+app.get('/api/health', (req, res) => {
+  const dbState = mongoose.connection.readyState; // 0=disconnected,1=connected,2=connecting,3=disconnecting
+  res.status(dbState === 1 ? 200 : 503).json({
+    status: dbState === 1 ? 'ok' : 'db_unavailable',
+    dbState,
+    timestamp: new Date().toISOString(),
   });
+});
+
+// Connect to MongoDB with automatic retry
+const MAX_RETRIES = 10;
+let retryCount = 0;
+
+function connectWithRetry() {
+  console.log(`🔄 Attempting MongoDB connection (attempt ${retryCount + 1}/${MAX_RETRIES})...`);
+  mongoose
+    .connect(mongoUri, {
+      serverSelectionTimeoutMS: 10000,   // fail fast per attempt
+      socketTimeoutMS: 45000,
+    })
+    .then(() => {
+      console.log('✅ MongoDB connected successfully');
+      retryCount = 0; // reset for any future reconnects
+    })
+    .catch((err) => {
+      retryCount++;
+      console.error(`❌ MongoDB connection error (attempt ${retryCount}/${MAX_RETRIES}):`, err.message);
+      if (err.message.includes('whitelist') || err.message.includes('IP')) {
+        console.error('💡 FIX: Go to MongoDB Atlas → Network Access → Add IP Address → Allow Access from Anywhere (0.0.0.0/0)');
+      }
+      if (retryCount < MAX_RETRIES) {
+        const delay = Math.min(retryCount * 5000, 30000); // 5s, 10s, 15s... max 30s
+        console.log(`⏳ Retrying in ${delay / 1000}s...`);
+        setTimeout(connectWithRetry, delay);
+      } else {
+        console.error('❌ Max retries reached. Server stays up but DB is unavailable.');
+        console.error('💡 Fix the issue and redeploy, or the server will accept requests but return 503 on DB-dependent routes.');
+      }
+    });
+}
+
+// Handle disconnection events for auto-reconnect
+mongoose.connection.on('disconnected', () => {
+  console.warn('⚠️ MongoDB disconnected. Will attempt reconnect...');
+  if (retryCount === 0) {
+    retryCount = 0;
+    setTimeout(connectWithRetry, 5000);
+  }
+});
+
+mongoose.connection.on('error', (err) => {
+  console.error('⚠️ MongoDB connection error event:', err.message);
+});
+
+connectWithRetry();
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('🛑 SIGTERM received. Shutting down gracefully...');
+  server.close(() => {
+    mongoose.connection.close(false, () => {
+      console.log('MongoDB connection closed.');
+      process.exit(0);
+    });
+  });
+});
 
 module.exports = app;
