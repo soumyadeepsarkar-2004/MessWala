@@ -20,7 +20,10 @@ exports.register = async (req, res) => {
             return res.status(400).json({ success: false, error: 'Email already registered' });
         }
 
-        const user = await User.create({ name, email, password, role, roomNumber });
+        // Only allow 'student' role on public registration
+        // Admin must manually change roles from the database or admin panel
+        const safeRole = 'student';
+        const user = await User.create({ name, email, password, role: safeRole, roomNumber });
 
         const token = generateToken(user._id);
 

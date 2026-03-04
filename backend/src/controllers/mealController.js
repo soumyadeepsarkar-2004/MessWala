@@ -1,4 +1,5 @@
 const MealAttendance = require('../models/MealAttendance');
+const { linearRegression } = require('../utils/predictor');
 
 // @desc    Mark meal attendance
 // @route   POST /api/meals/mark
@@ -101,6 +102,42 @@ exports.getTodayAttendance = async (req, res) => {
         });
 
         res.json({ success: true, date: today, attendance: result });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+};
+
+// @desc    Forecast next day attendance
+// @route   GET /api/meals/forecast
+exports.getForecast = async (req, res) => {
+    try {
+        const days = 14;
+        const results = {};
+
+        for (const mealType of ['breakfast', 'lunch', 'dinner']) {
+            const dailyCounts = [];
+            for (let i = days; i >= 1; i--) {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                const dateStr = d.toISOString().split('T')[0];
+
+                const count = await MealAttendance.countDocuments({
+                    date: dateStr,
+                    mealType,
+                    present: true,
+                });
+                dailyCounts.push(count);
+            }
+
+            const predicted = linearRegression(dailyCounts);
+            results[mealType] = {
+                predicted: Math.max(0, Math.round(predicted)),
+                recentAvg: Math.round(dailyCounts.reduce((a, b) => a + b, 0) / dailyCounts.length),
+                trend: dailyCounts,
+            };
+        }
+
+        res.json({ success: true, forecast: results });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
     }

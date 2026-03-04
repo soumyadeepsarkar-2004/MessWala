@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import api from '../services/api';
+import api, { API_BASE_URL } from '../services/api';
 import toast from 'react-hot-toast';
 import { HiOutlinePlus, HiOutlineTrash, HiOutlineDownload, HiOutlineCurrencyRupee } from 'react-icons/hi';
 
@@ -70,7 +70,8 @@ export default function ExpensesPage() {
     };
 
     const handleExport = () => {
-        window.open(`/api/expenses/export?month=${summary?.month || ''}`, '_blank');
+        const token = localStorage.getItem('messwala_token');
+        window.open(`${API_BASE_URL}/expenses/export?month=${summary?.month || ''}&token=${token}`, '_blank');
     };
 
     const getCategoryInfo = (cat) => CATEGORIES.find((c) => c.value === cat) || CATEGORIES[6];

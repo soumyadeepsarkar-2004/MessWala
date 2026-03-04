@@ -1,4 +1,5 @@
 const Feedback = require('../models/Feedback');
+const Menu = require('../models/Menu');
 
 // @desc    Submit feedback for a meal
 // @route   POST /api/feedback
@@ -129,7 +130,16 @@ exports.getMostComplained = async (req, res) => {
             { $limit: 10 },
         ]);
 
-        res.json({ success: true, complaints });
+        // Resolve actual dish names from Menu
+        const enriched = await Promise.all(
+            complaints.map(async (c) => {
+                const menu = await Menu.findOne({ date: c._id.date });
+                const dishName = menu ? menu[c._id.mealType] : null;
+                return { ...c, dishName: dishName || `${c._id.mealType} on ${c._id.date}` };
+            })
+        );
+
+        res.json({ success: true, complaints: enriched });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
     }

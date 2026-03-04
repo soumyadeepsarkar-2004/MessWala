@@ -6,6 +6,7 @@ const MealAttendance = require('../models/MealAttendance');
 const Expense = require('../models/Expense');
 const Menu = require('../models/Menu');
 const Feedback = require('../models/Feedback');
+const Task = require('../models/Task');
 
 const CATEGORIES = ['vegetables', 'rice', 'gas', 'salary', 'dairy', 'spices', 'misc'];
 const MEAL_TYPES = ['breakfast', 'lunch', 'dinner'];
@@ -43,6 +44,7 @@ async function seed() {
             Expense.deleteMany({}),
             Menu.deleteMany({}),
             Feedback.deleteMany({}),
+            Task.deleteMany({}),
         ]);
         console.log('🧹 Cleared existing data');
 
@@ -163,6 +165,21 @@ async function seed() {
 
         await Feedback.insertMany(feedbackRecords);
         console.log(`⭐ Created ${feedbackRecords.length} feedback entries`);
+
+        // Create tasks
+        const manager = users.find((u) => u.role === 'manager');
+        const taskData = [
+            { title: 'Order vegetables for next week', description: 'Contact Ramesh vendor for bulk veggies order', priority: 'high', dueDate: new Date(Date.now() + 2 * 86400000).toISOString().split('T')[0], assignedTo: manager._id, createdBy: users[0]._id },
+            { title: 'Clean kitchen exhaust', description: 'Monthly exhaust cleaning due', priority: 'medium', dueDate: new Date(Date.now() + 5 * 86400000).toISOString().split('T')[0], assignedTo: students[0]._id, createdBy: manager._id },
+            { title: 'Submit monthly expense report', description: 'Compile all expenses and submit to warden', priority: 'high', dueDate: new Date(Date.now() + 1 * 86400000).toISOString().split('T')[0], assignedTo: treasurer._id, createdBy: users[0]._id },
+            { title: 'Fix dining hall fan', description: 'Fan #3 in the dining hall is not working', priority: 'low', dueDate: new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0], assignedTo: manager._id, createdBy: students[1]._id },
+            { title: 'Update next week menu', description: 'Plan and update the mess menu for next week', priority: 'medium', dueDate: new Date(Date.now() + 3 * 86400000).toISOString().split('T')[0], assignedTo: manager._id, createdBy: users[0]._id },
+            { title: 'Collect mess fees', description: 'Collect pending mess fees from 5 students', priority: 'high', dueDate: new Date(Date.now() + 4 * 86400000).toISOString().split('T')[0], assignedTo: treasurer._id, createdBy: manager._id },
+            { title: 'Restock disposable plates', description: 'Buy paper plates and cups for events', priority: 'low', dueDate: new Date(Date.now() + 10 * 86400000).toISOString().split('T')[0], assignedTo: students[2]._id, createdBy: manager._id },
+            { title: 'Organize feedback meeting', description: 'Monthly mess committee meeting with students', priority: 'medium', dueDate: new Date(Date.now() + 6 * 86400000).toISOString().split('T')[0], assignedTo: users[0]._id, createdBy: manager._id, completed: true, completedAt: new Date() },
+        ];
+        await Task.insertMany(taskData);
+        console.log(`📋 Created ${taskData.length} tasks`);
 
         console.log('\n✨ Seed data complete!');
         console.log('\n📧 Login credentials:');
