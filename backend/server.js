@@ -76,12 +76,19 @@ const PORT = process.env.PORT || 5000;
 console.log('--- Server Startup ---');
 console.log(`Time: ${new Date().toISOString()}`);
 console.log(`Port Configured: ${PORT}`);
+console.log(`NODE_ENV: ${process.env.NODE_ENV || 'not set (defaults to development)'}`);
 console.log(`MONGO_URI Configured: ${process.env.MONGO_URI ? 'YES (Env Var)' : 'NO - FATAL ERROR'}`);
+console.log(`JWT_SECRET Configured: ${process.env.JWT_SECRET ? 'YES' : 'NO - FATAL ERROR (login will fail)'}`);
 
 if (!process.env.MONGO_URI) {
   console.error('❌ FATAL ERROR: MONGO_URI environment variable is missing.');
   console.error('💡 TIP: Go to Railway Dashboard -> Variables and add MONGO_URI');
   process.exit(1);
+}
+
+if (!process.env.JWT_SECRET) {
+  console.warn('⚠️ WARNING: JWT_SECRET not set. Using fallback. Set this in Railway Variables!');
+  process.env.JWT_SECRET = 'messwala-fallback-secret-change-me';
 }
 
 const mongoUri = process.env.MONGO_URI;
