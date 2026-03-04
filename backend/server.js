@@ -44,23 +44,31 @@ app.use((err, req, res, next) => {
 // Connect to MongoDB and start server
 const PORT = process.env.PORT || 5000;
 
-if (!process.env.MONGO_URI) {
-  console.error('❌ FATAL ERROR: MONGO_URI environment variable is not defined.');
-  console.error('💡 TIP: Go to Railway Dashboard -> Variables and add MONGO_URI');
-  process.exit(1);
-}
+console.log('--- Server Startup ---');
+console.log(`Time: ${new Date().toISOString()}`);
+console.log(`Port Configured: ${PORT}`);
+console.log(`MONGO_URI Configured: ${process.env.MONGO_URI ? 'YES (Hidden)' : 'NO - FATAL ERROR'}`);
 
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => {
-    console.log('✅ MongoDB connected successfully');
-    app.listen(PORT, () => {
-      console.log(`🚀 MessWala server running on port ${PORT}`);
-    });
-  })
-  .catch((err) => {
-    console.error('❌ MongoDB connection error:', err.message);
-    process.exit(1);
-  });
+if (!process.env.MONGO_URI) {
+  console.error('❌ FATAL ERROR: MONGO_URI environment variable is missing.');
+  console.error('💡 TIP: Go to Railway Dashboard -> Variables and add MONGO_URI');
+  // Keep the process alive for a bit so logs can be read, then exit
+  setTimeout(() => process.exit(1), 2000);
+} else {
+    mongoose
+      .connect(process.env.MONGO_URI)
+      .then(() => {
+        console.log('✅ MongoDB connected successfully');
+        app.listen(PORT, '0.0.0.0', () => {
+          console.log(`🚀 MessWala server running on port ${PORT}`);
+        });
+      })
+      .catch((err) => {
+        console.error('❌ MongoDB connection error:', err.message);
+        // Do not exit immediately, log robustly
+        console.error('Check your MongoDB Atlas Network Access (IP Whitelist).');
+        setTimeout(() => process.exit(1), 2000);
+      });
+}
 
 module.exports = app;
