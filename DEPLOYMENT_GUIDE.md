@@ -9,9 +9,9 @@ This guide details how to deploy your MessWala application.
 2.  **Log in to [Railway](https://railway.app/).**
 3.  Click **New Project** -> **Deploy from GitHub repo**.
 4.  Select your repository (`MessWala`).
-5.  **Configure the Service:**
-    *   Railway might try to deploy the root. You need to configure it to deploy the `backend` folder.
-    *   Go to **Settings** -> **Root Directory** and set it to `/backend`.
+5.  **Configure the Service: (Now Optional!)**
+    *   I have added a configuration file (`package.json` at root) that automatically handles the backend deployment.
+    *   You can *optionally* still set **Root Directory** to `/backend` in Settings, but it should work automatically now!
 6.  **Set Environment Variables:**
     *   Go to the **Variables** tab.
     *   Add the following variables:
