@@ -1,6 +1,6 @@
 {
   "name": "messwala-backend",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "MessWala - Hostel Mess Management System Backend",
   "main": "server.js",
   "scripts": {

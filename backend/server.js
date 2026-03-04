@@ -49,7 +49,7 @@ const FALLBACK_MONGO_URI = 'mongodb+srv://shannking969_db_user:nlWk4dBdeSkIxyRj@
 const mongoUri = process.env.MONGO_URI || FALLBACK_MONGO_URI;
 
 console.log('--- Server Startup ---');
-console.log(`Time: ${new Date().toISOString()}`);
+console.log(`Time: ${new Date().toISOString()} - Deployment Attempt: Fix Loop`);
 console.log(`Port Configured: ${PORT}`);
 console.log(`MONGO_URI Configured: ${process.env.MONGO_URI ? 'YES (Env Var)' : 'YES (Fallback Hardcoded)'}`);
 
