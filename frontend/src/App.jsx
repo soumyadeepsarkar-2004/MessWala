@@ -10,6 +10,7 @@ import AnalyticsPage from './pages/AnalyticsPage';
 import FeedbackPage from './pages/FeedbackPage';
 import MenuPage from './pages/MenuPage';
 import TasksPage from './pages/TasksPage';
+import HomePage from './pages/HomePage';
 
 const ProtectedRoute = ({ children, roles }) => {
     const { user, loading } = useAuth();
@@ -36,6 +37,7 @@ export default function App() {
             {user && <Navbar />}
             <main className={user ? 'pt-16' : ''}>
                 <Routes>
+                    <Route path="/" element={user ? <Navigate to="/dashboard" /> : <HomePage />} />
                     <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <LoginPage />} />
                     <Route path="/register" element={user ? <Navigate to="/dashboard" /> : <RegisterPage />} />
                     <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
@@ -45,7 +47,7 @@ export default function App() {
                     <Route path="/feedback" element={<ProtectedRoute><FeedbackPage /></ProtectedRoute>} />
                     <Route path="/menu" element={<ProtectedRoute><MenuPage /></ProtectedRoute>} />
                     <Route path="/tasks" element={<ProtectedRoute><TasksPage /></ProtectedRoute>} />
-                    <Route path="*" element={<Navigate to={user ? '/dashboard' : '/login'} />} />
+                    <Route path="*" element={<Navigate to={user ? '/dashboard' : '/'} />} />
                 </Routes>
             </main>
         </div>
