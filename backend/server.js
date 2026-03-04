@@ -87,8 +87,8 @@ if (!process.env.MONGO_URI) {
 }
 
 if (!process.env.JWT_SECRET) {
-  console.warn('⚠️ WARNING: JWT_SECRET not set. Using fallback. Set this in Railway Variables!');
-  process.env.JWT_SECRET = 'messwala-fallback-secret-change-me';
+  console.warn('⚠️ WARNING: JWT_SECRET not set. Using built-in fallback.');
+  process.env.JWT_SECRET = 'mW$2026!xK9pLqR#vTzYn@8sFdGhJb4c';
 }
 
 const mongoUri = process.env.MONGO_URI;
