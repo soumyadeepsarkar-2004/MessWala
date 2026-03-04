@@ -4,7 +4,8 @@ This guide details how to deploy your MessWala application.
 
 ## 1. Backend Deployment (Railway)
 
-1.  **Push your code to GitHub.** Ensure the latest changes are committed.
+1.  **Push your code to GitHub.**
+    *   Repo URL: [https://github.com/soumyadeepsarkar-2004/MessWala.git](https://github.com/soumyadeepsarkar-2004/MessWala.git) (Already pushed!)
 2.  **Log in to [Railway](https://railway.app/).**
 3.  Click **New Project** -> **Deploy from GitHub repo**.
 4.  Select your repository (`MessWala`).
