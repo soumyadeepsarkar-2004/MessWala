@@ -44,6 +44,12 @@ app.use((err, req, res, next) => {
 // Connect to MongoDB and start server
 const PORT = process.env.PORT || 5000;
 
+if (!process.env.MONGO_URI) {
+  console.error('❌ FATAL ERROR: MONGO_URI environment variable is not defined.');
+  console.error('💡 TIP: Go to Railway Dashboard -> Variables and add MONGO_URI');
+  process.exit(1);
+}
+
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
