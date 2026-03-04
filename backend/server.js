@@ -44,14 +44,18 @@ app.use((err, req, res, next) => {
 // Connect to MongoDB and start server
 const PORT = process.env.PORT || 5000;
 
-// fallback URI provided by user -- INSECURE for production but fixes deployment immediately
-const FALLBACK_MONGO_URI = 'mongodb+srv://shannking969_db_user:nlWk4dBdeSkIxyRj@cluster0.u4tdugj.mongodb.net/messwala?retryWrites=true&w=majority&appName=Cluster0';
-const mongoUri = process.env.MONGO_URI || FALLBACK_MONGO_URI;
-
 console.log('--- Server Startup ---');
-console.log(`Time: ${new Date().toISOString()} - Deployment Attempt: Fix Loop`);
+console.log(`Time: ${new Date().toISOString()}`);
 console.log(`Port Configured: ${PORT}`);
-console.log(`MONGO_URI Configured: ${process.env.MONGO_URI ? 'YES (Env Var)' : 'YES (Fallback Hardcoded)'}`);
+console.log(`MONGO_URI Configured: ${process.env.MONGO_URI ? 'YES (Env Var)' : 'NO - FATAL ERROR'}`);
+
+if (!process.env.MONGO_URI) {
+  console.error('❌ FATAL ERROR: MONGO_URI environment variable is missing.');
+  console.error('💡 TIP: Go to Railway Dashboard -> Variables and add MONGO_URI');
+  process.exit(1);
+}
+
+const mongoUri = process.env.MONGO_URI;
 
 mongoose
   .connect(mongoUri)
