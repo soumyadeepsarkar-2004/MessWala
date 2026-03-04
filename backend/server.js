@@ -12,30 +12,30 @@ app.use(helmet());
 
 // Rate limiting for auth routes
 const authLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 20, // limit each IP to 20 requests per window
-    message: { success: false, error: 'Too many attempts, please try again after 15 minutes' },
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 20, // limit each IP to 20 requests per window
+  message: { success: false, error: 'Too many attempts, please try again after 15 minutes' },
 });
 
 // CORS configuration
 const allowedOrigins = process.env.FRONTEND_URL
-    ? [process.env.FRONTEND_URL]
-    : ['http://localhost:5173', 'http://localhost:3000'];
+  ? [process.env.FRONTEND_URL]
+  : ['http://localhost:5173', 'http://localhost:3000'];
 app.use(cors({
-    origin: (origin, callback) => {
-        // Allow requests with no origin (mobile apps, curl, etc.)
-        if (!origin) return callback(null, true);
-        // In production, check against allowed origins; in dev, allow all
-        if (process.env.NODE_ENV !== 'production' || allowedOrigins.some(o => origin.startsWith(o))) {
-            return callback(null, true);
-        }
-        // Allow all vercel.app and railway.app domains
-        if (origin.endsWith('.vercel.app') || origin.endsWith('.railway.app')) {
-            return callback(null, true);
-        }
-        callback(null, true); // permissive for now
-    },
-    credentials: true,
+  origin: (origin, callback) => {
+    // Allow requests with no origin (mobile apps, curl, etc.)
+    if (!origin) return callback(null, true);
+    // In production, check against allowed origins; in dev, allow all
+    if (process.env.NODE_ENV !== 'production' || allowedOrigins.some(o => origin.startsWith(o))) {
+      return callback(null, true);
+    }
+    // Allow all vercel.app and railway.app domains
+    if (origin.endsWith('.vercel.app') || origin.endsWith('.railway.app')) {
+      return callback(null, true);
+    }
+    callback(null, true); // permissive for now
+  },
+  credentials: true,
 }));
 app.use(express.json());
 
