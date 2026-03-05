@@ -49,10 +49,10 @@ const authLimiter = rateLimit({
   message: { success: false, error: 'Too many attempts, please try again after 15 minutes' },
   store: process.env.MONGO_URI
     ? new MongoStore({
-        uri: process.env.MONGO_URI,
-        collectionName: 'rateLimits',
-        expireTimeMs: 15 * 60 * 1000,
-      })
+      uri: process.env.MONGO_URI,
+      collectionName: 'rateLimits',
+      expireTimeMs: 15 * 60 * 1000,
+    })
     : undefined, // falls back to in-memory for local dev without DB
 });
 
