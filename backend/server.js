@@ -40,6 +40,16 @@ const menuRoutes = require('./src/routes/menuRoutes');
 const analyticsRoutes = require('./src/routes/analyticsRoutes');
 const taskRoutes = require('./src/routes/taskRoutes');
 
+// Health check (before other routes so it always works)
+app.get('/api/health', (req, res) => {
+  const dbState = mongoose.connection.readyState;
+  res.status(dbState === 1 ? 200 : 503).json({
+    status: dbState === 1 ? 'ok' : 'db_unavailable',
+    dbState,
+    timestamp: new Date().toISOString(),
+  });
+});
+
 // Mount routes
 app.use('/api/auth', authRoutes);
 app.use('/api/meals', mealRoutes);
@@ -85,16 +95,6 @@ const mongoUri = process.env.MONGO_URI;
 // (prevents Railway from marking the service as crashed during DB connection retries)
 const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 MessWala server listening on port ${PORT}`);
-});
-
-// Health check returns DB status
-app.get('/api/health', (req, res) => {
-  const dbState = mongoose.connection.readyState; // 0=disconnected,1=connected,2=connecting,3=disconnecting
-  res.status(dbState === 1 ? 200 : 503).json({
-    status: dbState === 1 ? 'ok' : 'db_unavailable',
-    dbState,
-    timestamp: new Date().toISOString(),
-  });
 });
 
 // Connect to MongoDB with automatic retry
