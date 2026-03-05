@@ -182,11 +182,7 @@ async function seed() {
         console.log(`📋 Created ${taskData.length} tasks`);
 
         console.log('\n✨ Seed data complete!');
-        console.log('\n📧 Login credentials:');
-        console.log('  Admin:     admin@messwala.com / admin123');
-        console.log('  Manager:   manager@messwala.com / manager123');
-        console.log('  Treasurer: treasurer@messwala.com / treasurer123');
-        console.log('  Student:   arjun@messwala.com / student123');
+        console.log('\nSee README.md for demo login credentials.');
 
         process.exit(0);
     } catch (err) {

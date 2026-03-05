@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import api, { API_BASE_URL } from '../services/api';
+import api from '../services/api';
 import toast from 'react-hot-toast';
 import { HiOutlinePlus, HiOutlineTrash, HiOutlineDownload, HiOutlineCurrencyRupee } from 'react-icons/hi';
 
@@ -69,9 +69,22 @@ export default function ExpensesPage() {
         }
     };
 
-    const handleExport = () => {
-        const token = localStorage.getItem('messwala_token');
-        window.open(`${API_BASE_URL}/expenses/export?month=${summary?.month || ''}&token=${token}`, '_blank');
+    const handleExport = async () => {
+        try {
+            const res = await api.get(`/expenses/export?month=${summary?.month || ''}`, {
+                responseType: 'blob',
+            });
+            const url = window.URL.createObjectURL(new Blob([res.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `expenses-${summary?.month || 'all'}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
+        } catch (err) {
+            toast.error('Failed to export CSV');
+        }
     };
 
     const getCategoryInfo = (cat) => CATEGORIES.find((c) => c.value === cat) || CATEGORIES[6];

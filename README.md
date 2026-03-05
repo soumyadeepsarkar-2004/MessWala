@@ -4,15 +4,24 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+**Live:** [mess-walah.vercel.app](https://mess-walah.vercel.app) | **API:** [messwala-6jvj.onrender.com](https://messwala-6jvj.onrender.com)
+
 MessWala is an open-source hostel mess management system that brings transparency, accountability, and data-driven decision-making to hostel mess operations. Built for real-world use in Indian hostels.
 
 ## ✨ Features
 
-### 🔐 Role-Based Access Control
+### 🔐 Multi-Role Authentication
+- **Google OAuth** — One-click sign-in for students via Google
+- **Admin/Manager Login** — Separate credential-based login with reCAPTCHA v3
+- **Student Onboarding** — College details, room number, mess preference
+- **Manager Approval** — Students require manager/admin approval before accessing the app
+- **OTP Password Reset** — Email-based OTP for forgotten passwords
+
+### 🎭 Role-Based Access Control
 - **Student** — Mark attendance, rate meals, view analytics
-- **Mess Manager** — Set daily menu, view headcount forecasts
+- **Mess Manager** — Set daily menu, view headcount forecasts, manage students
 - **Treasurer** — Track expenses, export CSV, manage costs
-- **Admin** — Full system access
+- **Admin** — Full system access, student approvals
 
 ### 📊 Cost Analytics Dashboard
 - Monthly expense trends
@@ -31,17 +40,21 @@ MessWala is an open-source hostel mess management system that brings transparenc
 - Menu management (weekly calendar)
 - Feedback system with star ratings
 - Anonymous commenting
+- Task management with assignments
 - CSV export for accounting
 
 ## 🛠 Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
-| Frontend | React 18, Vite, Tailwind CSS 3, Recharts |
-| Backend | Node.js, Express.js |
-| Database | MongoDB with Mongoose |
-| Auth | JWT + bcrypt |
-| UI | Glassmorphism, dark mode, micro-animations |
+| Frontend | React 18, Vite 5, Tailwind CSS 3, Recharts, PWA |
+| Backend | Node.js, Express.js, Helmet |
+| Database | MongoDB Atlas with Mongoose |
+| Auth | JWT, Google OAuth, reCAPTCHA v3, bcrypt |
+| Email | Nodemailer (Gmail SMTP) |
+| Rate Limiting | express-rate-limit + MongoDB store |
+| Frontend Hosting | Vercel (static) |
+| Backend Hosting | Render (persistent server) |
 
 ## 🚀 Quick Start
 
@@ -94,22 +107,24 @@ Open http://localhost:5173 in your browser.
 ```
 MessWala/
 ├── backend/
-│   ├── server.js              # Express server
+│   ├── server.js              # Express server + middleware
 │   ├── src/
 │   │   ├── models/            # Mongoose schemas
 │   │   ├── controllers/       # Business logic
 │   │   ├── routes/            # API endpoints
-│   │   ├── middleware/        # Auth & role guards
-│   │   ├── utils/             # Prediction algorithm
+│   │   ├── middleware/        # Auth, role & approval guards
+│   │   ├── utils/             # Prediction algorithm, email
 │   │   └── seed/              # Sample data generator
-│   └── .env.example
 ├── frontend/
 │   ├── src/
 │   │   ├── pages/             # Route-level pages
 │   │   ├── components/        # Reusable UI
-│   │   ├── context/           # Auth context
-│   │   └── services/          # API layer
+│   │   ├── context/           # Auth context (JWT + Google)
+│   │   └── services/          # API layer (Axios)
 │   └── index.html
+├── vercel.json                # Frontend deployment config
+├── render.yaml                # Backend deployment blueprint
+├── DEPLOYMENT_GUIDE.md        # Full deployment instructions
 ├── LICENSE
 ├── CONTRIBUTING.md
 └── README.md
@@ -119,9 +134,15 @@ MessWala/
 
 | Method | Endpoint | Auth | Description |
 |--------|----------|------|-------------|
-| POST | `/api/auth/register` | — | Register user |
-| POST | `/api/auth/login` | — | Login |
+| POST | `/api/auth/admin/login` | — | Admin/Manager/Treasurer login |
+| POST | `/api/auth/google` | — | Google OAuth for students |
+| POST | `/api/auth/complete-profile` | ✅ | Student onboarding |
+| POST | `/api/auth/admin/forgot-password` | — | Request OTP |
+| POST | `/api/auth/admin/verify-otp` | — | Verify OTP |
+| POST | `/api/auth/admin/reset-password` | — | Reset password |
 | GET | `/api/auth/profile` | ✅ | Get profile |
+| GET | `/api/auth/students/pending` | Manager+ | Pending student approvals |
+| PATCH | `/api/auth/students/:id/approve` | Manager+ | Approve student |
 | POST | `/api/meals/mark` | ✅ | Mark attendance |
 | GET | `/api/meals/headcount` | Manager+ | Daily headcount |
 | POST | `/api/expenses` | Treasurer+ | Add expense |
@@ -131,6 +152,8 @@ MessWala/
 | GET | `/api/analytics/predicted-cost` | ✅ | ML prediction |
 | POST | `/api/feedback` | ✅ | Rate meal |
 | POST | `/api/menu` | Manager+ | Set menu |
+| GET | `/api/tasks` | ✅ | List tasks |
+| POST | `/api/tasks` | Manager+ | Create task |
 
 ## 🤝 Contributing
 

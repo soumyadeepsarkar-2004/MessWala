@@ -34,10 +34,7 @@ app.use(cors({
 
 // Security middleware
 app.use(helmet({
-  crossOriginResourcePolicy: false,
-  crossOriginOpenerPolicy: false,
-  crossOriginEmbedderPolicy: false,
-  contentSecurityPolicy: false,
+  contentSecurityPolicy: false, // CSP handled by Vercel's vercel.json headers
 }));
 
 app.use(express.json());
@@ -71,7 +68,7 @@ const menuRoutes = require('./src/routes/menuRoutes');
 const analyticsRoutes = require('./src/routes/analyticsRoutes');
 const taskRoutes = require('./src/routes/taskRoutes');
 
-// Root health check (Railway may probe /)
+// Root health check
 app.get('/', (req, res) => {
   res.json({ status: 'ok', service: 'MessWala API' });
 });
