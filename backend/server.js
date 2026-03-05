@@ -3,6 +3,7 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const MongoStore = require('rate-limit-mongo');
 require('dotenv').config();
 
 const app = express();
@@ -13,6 +14,10 @@ const ALLOWED_ORIGINS = [
   'http://localhost:5173',
   'http://localhost:3000',
 ];
+// Dynamically add Render URL if set
+if (process.env.RENDER_EXTERNAL_URL) {
+  ALLOWED_ORIGINS.push(process.env.RENDER_EXTERNAL_URL);
+}
 
 app.use(cors({
   origin: function (origin, callback) {
@@ -27,7 +32,7 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
-// Security middleware (after CORS) - disabled crossOriginResourcePolicy for Railway proxy
+// Security middleware
 app.use(helmet({
   crossOriginResourcePolicy: false,
   crossOriginOpenerPolicy: false,
@@ -37,11 +42,18 @@ app.use(helmet({
 
 app.use(express.json());
 
-// Rate limiting for auth routes
+// Rate limiting for auth routes - uses MongoDB store for persistence across restarts/serverless
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 20, // limit each IP to 20 requests per window
   message: { success: false, error: 'Too many attempts, please try again after 15 minutes' },
+  store: process.env.MONGO_URI
+    ? new MongoStore({
+        uri: process.env.MONGO_URI,
+        collectionName: 'rateLimits',
+        expireTimeMs: 15 * 60 * 1000,
+      })
+    : undefined, // falls back to in-memory for local dev without DB
 });
 
 app.use('/api/auth/google', authLimiter);
