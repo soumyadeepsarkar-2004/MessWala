@@ -30,13 +30,48 @@ const userSchema = new mongoose.Schema(
             enum: ['student', 'manager', 'treasurer', 'admin'],
             default: 'student',
         },
+        collegeId: {
+            type: String,
+            trim: true,
+        },
         roomNumber: {
             type: String,
             trim: true,
         },
+        phone: {
+            type: String,
+            trim: true,
+        },
+        address: {
+            type: String,
+            trim: true,
+        },
+        dob: {
+            type: Date,
+        },
+        messNumber: {
+            type: String,
+            trim: true,
+        },
+        isApproved: {
+            type: Boolean,
+            default: false,
+        },
+        profileComplete: {
+            type: Boolean,
+            default: false,
+        },
         avatar: {
             type: String,
             default: '',
+        },
+        otp: {
+            type: String,
+            select: false,
+        },
+        otpExpiry: {
+            type: Date,
+            select: false,
         },
     },
     {

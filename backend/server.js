@@ -33,6 +33,10 @@ const authLimiter = rateLimit({
 });
 
 app.use('/api/auth/google', authLimiter);
+app.use('/api/auth/admin/login', authLimiter);
+app.use('/api/auth/admin/forgot-password', authLimiter);
+app.use('/api/auth/admin/verify-otp', authLimiter);
+app.use('/api/auth/admin/reset-password', authLimiter);
 
 // Route imports
 const authRoutes = require('./src/routes/authRoutes');

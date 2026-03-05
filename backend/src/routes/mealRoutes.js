@@ -8,13 +8,13 @@ const {
     getTodayAttendance,
     getForecast,
 } = require('../controllers/mealController');
-const { protect, authorize } = require('../middleware/authMiddleware');
+const { protect, authorize, requireApproval } = require('../middleware/authMiddleware');
 
-router.post('/mark', protect, markAttendance);
-router.get('/today', protect, getTodayAttendance);
-router.get('/headcount', protect, getDailyHeadcount);
-router.get('/history', protect, getAttendanceHistory);
-router.get('/trend', protect, authorize('manager', 'admin'), getAttendanceTrend);
-router.get('/forecast', protect, getForecast);
+router.post('/mark', protect, requireApproval, markAttendance);
+router.get('/today', protect, requireApproval, getTodayAttendance);
+router.get('/headcount', protect, requireApproval, getDailyHeadcount);
+router.get('/history', protect, requireApproval, getAttendanceHistory);
+router.get('/trend', protect, requireApproval, authorize('manager', 'admin'), getAttendanceTrend);
+router.get('/forecast', protect, requireApproval, getForecast);
 
 module.exports = router;

@@ -7,12 +7,12 @@ const {
     getSatisfactionTrend,
     getMostComplained,
 } = require('../controllers/feedbackController');
-const { protect, authorize } = require('../middleware/authMiddleware');
+const { protect, authorize, requireApproval } = require('../middleware/authMiddleware');
 
-router.post('/', protect, submitFeedback);
-router.get('/', protect, getFeedback);
-router.get('/weekly', protect, getWeeklyRatings);
-router.get('/trend', protect, getSatisfactionTrend);
-router.get('/complaints', protect, authorize('manager', 'admin'), getMostComplained);
+router.post('/', protect, requireApproval, submitFeedback);
+router.get('/', protect, requireApproval, getFeedback);
+router.get('/weekly', protect, requireApproval, getWeeklyRatings);
+router.get('/trend', protect, requireApproval, getSatisfactionTrend);
+router.get('/complaints', protect, requireApproval, authorize('manager', 'admin'), getMostComplained);
 
 module.exports = router;

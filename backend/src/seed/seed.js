@@ -50,16 +50,16 @@ async function seed() {
 
         // Create users
         const users = await User.create([
-            { name: 'Admin User', email: 'admin@messwala.com', password: 'admin123', role: 'admin', roomNumber: 'A-101' },
-            { name: 'Mess Manager', email: 'manager@messwala.com', password: 'manager123', role: 'manager', roomNumber: 'A-102' },
-            { name: 'Treasurer', email: 'treasurer@messwala.com', password: 'treasurer123', role: 'treasurer', roomNumber: 'A-103' },
-            { name: 'Arjun Sharma', email: 'arjun@messwala.com', password: 'student123', role: 'student', roomNumber: 'B-201' },
-            { name: 'Priya Patel', email: 'priya@messwala.com', password: 'student123', role: 'student', roomNumber: 'B-202' },
-            { name: 'Rahul Kumar', email: 'rahul@messwala.com', password: 'student123', role: 'student', roomNumber: 'B-203' },
-            { name: 'Sneha Gupta', email: 'sneha@messwala.com', password: 'student123', role: 'student', roomNumber: 'C-301' },
-            { name: 'Vikram Singh', email: 'vikram@messwala.com', password: 'student123', role: 'student', roomNumber: 'C-302' },
-            { name: 'Ananya Das', email: 'ananya@messwala.com', password: 'student123', role: 'student', roomNumber: 'C-303' },
-            { name: 'Rohan Mehta', email: 'rohan@messwala.com', password: 'student123', role: 'student', roomNumber: 'D-401' },
+            { name: 'Admin User', email: 'admin@messwala.com', password: 'admin123', role: 'admin', roomNumber: 'A-101', isApproved: true, profileComplete: true },
+            { name: 'Mess Manager', email: 'manager@messwala.com', password: 'manager123', role: 'manager', roomNumber: 'A-102', isApproved: true, profileComplete: true },
+            { name: 'Treasurer', email: 'treasurer@messwala.com', password: 'treasurer123', role: 'treasurer', roomNumber: 'A-103', isApproved: true, profileComplete: true },
+            { name: 'Arjun Sharma', email: 'arjun@messwala.com', password: 'student123', role: 'student', roomNumber: 'B-201', collegeId: 'CSE2024001', phone: '9876543210', messNumber: '1', isApproved: true, profileComplete: true },
+            { name: 'Priya Patel', email: 'priya@messwala.com', password: 'student123', role: 'student', roomNumber: 'B-202', collegeId: 'CSE2024002', phone: '9876543211', messNumber: '1', isApproved: true, profileComplete: true },
+            { name: 'Rahul Kumar', email: 'rahul@messwala.com', password: 'student123', role: 'student', roomNumber: 'B-203', collegeId: 'CSE2024003', phone: '9876543212', messNumber: '2', isApproved: true, profileComplete: true },
+            { name: 'Sneha Gupta', email: 'sneha@messwala.com', password: 'student123', role: 'student', roomNumber: 'C-301', collegeId: 'CSE2024004', phone: '9876543213', messNumber: '2', isApproved: true, profileComplete: true },
+            { name: 'Vikram Singh', email: 'vikram@messwala.com', password: 'student123', role: 'student', roomNumber: 'C-302', collegeId: 'CSE2024005', phone: '9876543214', messNumber: '1', isApproved: true, profileComplete: true },
+            { name: 'Ananya Das', email: 'ananya@messwala.com', password: 'student123', role: 'student', roomNumber: 'C-303', collegeId: 'CSE2024006', phone: '9876543215', messNumber: '1', isApproved: true, profileComplete: true },
+            { name: 'Rohan Mehta', email: 'rohan@messwala.com', password: 'student123', role: 'student', roomNumber: 'D-401', collegeId: 'CSE2024007', phone: '9876543216', messNumber: '2', isApproved: true, profileComplete: true },
         ]);
         console.log(`👥 Created ${users.length} users`);
 

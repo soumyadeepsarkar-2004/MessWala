@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { HiOutlineHome, HiOutlineClipboardCheck, HiOutlineCurrencyRupee, HiOutlineChartBar, HiOutlineStar, HiOutlineCalendar, HiOutlineClipboardList, HiOutlineLogout, HiOutlineMenu, HiOutlineX, HiOutlineMoon, HiOutlineSun } from 'react-icons/hi';
+import { HiOutlineHome, HiOutlineClipboardCheck, HiOutlineCurrencyRupee, HiOutlineChartBar, HiOutlineStar, HiOutlineCalendar, HiOutlineClipboardList, HiOutlineLogout, HiOutlineMenu, HiOutlineX, HiOutlineMoon, HiOutlineSun, HiOutlineUserGroup } from 'react-icons/hi';
 
-const navItems = [
+const baseNavItems = [
     { path: '/dashboard', label: 'Dashboard', icon: HiOutlineHome },
     { path: '/attendance', label: 'Attendance', icon: HiOutlineClipboardCheck },
     { path: '/expenses', label: 'Expenses', icon: HiOutlineCurrencyRupee },
@@ -15,6 +15,12 @@ const navItems = [
 
 export default function Navbar() {
     const { user, logout } = useAuth();
+
+    // Add Students link for admin/manager
+    const navItems = [...baseNavItems];
+    if (user && ['admin', 'manager'].includes(user.role)) {
+        navItems.push({ path: '/students', label: 'Students', icon: HiOutlineUserGroup });
+    }
     const location = useLocation();
     const [mobileOpen, setMobileOpen] = useState(false);
     const [dark, setDark] = useState(() => {

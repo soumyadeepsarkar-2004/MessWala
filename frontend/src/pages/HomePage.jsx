@@ -17,7 +17,7 @@ export default function HomePage() {
                         <Link to="/login" className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
                             Log In
                         </Link>
-                        <Link to="/register" className="btn-primary py-2 px-5 text-sm shadow-lg shadow-primary-500/20">
+                        <Link to="/login" className="btn-primary py-2 px-5 text-sm shadow-lg shadow-primary-500/20">
                             Get Started
                         </Link>
                     </div>
@@ -45,8 +45,8 @@ export default function HomePage() {
                             Bring transparency, accountability, and data-driven intelligence to your hostel mess. Track expenses, predict costs, and manage attendance without the spreadsheets.
                         </p>
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                            <Link to="/register" className="w-full sm:w-auto btn-primary py-3.5 px-8 text-base shadow-xl shadow-primary-500/20 flex items-center justify-center gap-2 group">
-                                Create Mess Account
+                            <Link to="/login" className="w-full sm:w-auto btn-primary py-3.5 px-8 text-base shadow-xl shadow-primary-500/20 flex items-center justify-center gap-2 group">
+                                Get Started
                                 <HiOutlineArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                             </Link>
                             <Link to="/login" className="w-full sm:w-auto px-8 py-3.5 rounded-xl font-semibold text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-dark-800 hover:bg-gray-200 dark:hover:bg-dark-700 transition-all text-base border border-transparent dark:border-dark-700 flex items-center justify-center">

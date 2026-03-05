@@ -1,20 +1,20 @@
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 const { OAuth2Client } = require('google-auth-library');
 const User = require('../models/User');
+const { generateOTP, sendOTPEmail } = require('../utils/email');
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-// Generate JWT token
 const generateToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET, {
         expiresIn: process.env.JWT_EXPIRE || '30d',
     });
 };
 
-// Verify reCAPTCHA v3 token
 async function verifyCaptcha(token) {
     const secret = process.env.RECAPTCHA_SECRET_KEY;
-    if (!secret) return true; // skip in dev if not configured
+    if (!secret) return true;
     const res = await fetch(
         `https://www.google.com/recaptcha/api/siteverify?secret=${encodeURIComponent(secret)}&response=${encodeURIComponent(token)}`
     );
@@ -22,8 +22,56 @@ async function verifyCaptcha(token) {
     return data.success && data.score >= 0.5;
 }
 
-// @desc    Google Sign-In (login or auto-register)
-// @route   POST /api/auth/google
+function userResponse(user) {
+    return {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        collegeId: user.collegeId,
+        roomNumber: user.roomNumber,
+        phone: user.phone,
+        address: user.address,
+        dob: user.dob,
+        messNumber: user.messNumber,
+        isApproved: user.isApproved,
+        profileComplete: user.profileComplete,
+        avatar: user.avatar,
+    };
+}
+
+// ─── ADMIN / MANAGER LOGIN (email + password) ───
+// POST /api/auth/admin/login
+exports.adminLogin = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        if (!email || !password) {
+            return res.status(400).json({ success: false, error: 'Email and password are required' });
+        }
+
+        const user = await User.findOne({ email }).select('+password');
+        if (!user || !user.password) {
+            return res.status(401).json({ success: false, error: 'Invalid email or password' });
+        }
+
+        if (!['admin', 'manager', 'treasurer'].includes(user.role)) {
+            return res.status(403).json({ success: false, error: 'This login is for admin/manager accounts only' });
+        }
+
+        const isMatch = await user.matchPassword(password);
+        if (!isMatch) {
+            return res.status(401).json({ success: false, error: 'Invalid email or password' });
+        }
+
+        const token = generateToken(user._id);
+        res.json({ success: true, token, user: userResponse(user) });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+};
+
+// ─── GOOGLE SIGN-IN (students) ───
+// POST /api/auth/google
 exports.googleAuth = async (req, res) => {
     try {
         const { credential, captchaToken } = req.body;
@@ -32,13 +80,11 @@ exports.googleAuth = async (req, res) => {
             return res.status(400).json({ success: false, error: 'Google credential is required' });
         }
 
-        // Verify reCAPTCHA
         const captchaValid = await verifyCaptcha(captchaToken);
         if (!captchaValid) {
             return res.status(403).json({ success: false, error: 'CAPTCHA verification failed. Please try again.' });
         }
 
-        // Verify Google token
         const ticket = await googleClient.verifyIdToken({
             idToken: credential,
             audience: process.env.GOOGLE_CLIENT_ID,
@@ -46,24 +92,25 @@ exports.googleAuth = async (req, res) => {
         const payload = ticket.getPayload();
         const { sub: googleId, email, name, picture } = payload;
 
-        // Find existing user or create new one
         let user = await User.findOne({ $or: [{ googleId }, { email }] });
+        let isNew = false;
 
         if (user) {
-            // Link Google account if user exists by email but not yet linked
             if (!user.googleId) {
                 user.googleId = googleId;
                 if (picture) user.avatar = picture;
                 await user.save();
             }
         } else {
-            // Auto-register as student
+            isNew = true;
             user = await User.create({
                 name,
                 email,
                 googleId,
                 avatar: picture || '',
                 role: 'student',
+                isApproved: false,
+                profileComplete: false,
             });
         }
 
@@ -72,14 +119,8 @@ exports.googleAuth = async (req, res) => {
         res.json({
             success: true,
             token,
-            user: {
-                id: user._id,
-                name: user.name,
-                email: user.email,
-                role: user.role,
-                roomNumber: user.roomNumber,
-                avatar: user.avatar,
-            },
+            user: userResponse(user),
+            isNew,
         });
     } catch (err) {
         if (err.message?.includes('Token used too late') || err.message?.includes('Invalid token')) {
@@ -89,33 +130,233 @@ exports.googleAuth = async (req, res) => {
     }
 };
 
-// @desc    Get current user profile
-// @route   GET /api/auth/profile
-exports.getProfile = async (req, res) => {
+// ─── COMPLETE STUDENT PROFILE (after Google sign-in) ───
+// POST /api/auth/student/complete-profile
+exports.completeProfile = async (req, res) => {
     try {
+        const { collegeId, roomNumber, phone, address, dob } = req.body;
+
+        if (!collegeId || !roomNumber || !phone) {
+            return res.status(400).json({ success: false, error: 'College ID, Room Number, and Phone are required' });
+        }
+
         const user = await User.findById(req.user.id);
-        res.json({
-            success: true,
-            user: {
-                id: user._id,
-                name: user.name,
-                email: user.email,
-                role: user.role,
-                roomNumber: user.roomNumber,
-                createdAt: user.createdAt,
-            },
-        });
+        if (!user) {
+            return res.status(404).json({ success: false, error: 'User not found' });
+        }
+
+        user.collegeId = collegeId;
+        user.roomNumber = roomNumber;
+        user.phone = phone;
+        if (address) user.address = address;
+        if (dob) user.dob = dob;
+        user.profileComplete = true;
+        await user.save();
+
+        res.json({ success: true, user: userResponse(user) });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
     }
 };
 
-// @desc    Get all users (admin only)
-// @route   GET /api/auth/users
+// ─── FORGOT PASSWORD (send OTP) ───
+// POST /api/auth/admin/forgot-password
+exports.forgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
+        if (!email) {
+            return res.status(400).json({ success: false, error: 'Email is required' });
+        }
+
+        const user = await User.findOne({ email }).select('+otp +otpExpiry');
+        if (!user) {
+            // Don't reveal whether email exists
+            return res.json({ success: true, message: 'If the email exists, an OTP has been sent' });
+        }
+
+        if (!['admin', 'manager', 'treasurer'].includes(user.role)) {
+            return res.json({ success: true, message: 'If the email exists, an OTP has been sent' });
+        }
+
+        const { otp, otpExpiry } = generateOTP();
+        user.otp = otp;
+        user.otpExpiry = otpExpiry;
+        await user.save({ validateBeforeSave: false });
+
+        await sendOTPEmail(email, otp, user.name);
+
+        res.json({ success: true, message: 'OTP sent to your email' });
+    } catch (err) {
+        res.status(500).json({ success: false, error: 'Failed to send OTP. Please try again.' });
+    }
+};
+
+// ─── VERIFY OTP ───
+// POST /api/auth/admin/verify-otp
+exports.verifyOTP = async (req, res) => {
+    try {
+        const { email, otp } = req.body;
+        if (!email || !otp) {
+            return res.status(400).json({ success: false, error: 'Email and OTP are required' });
+        }
+
+        const user = await User.findOne({ email }).select('+otp +otpExpiry');
+        if (!user || !user.otp) {
+            return res.status(400).json({ success: false, error: 'Invalid or expired OTP' });
+        }
+
+        if (user.otpExpiry < new Date()) {
+            user.otp = undefined;
+            user.otpExpiry = undefined;
+            await user.save({ validateBeforeSave: false });
+            return res.status(400).json({ success: false, error: 'OTP has expired. Please request a new one.' });
+        }
+
+        if (user.otp !== otp) {
+            return res.status(400).json({ success: false, error: 'Invalid OTP' });
+        }
+
+        // OTP valid — generate a short-lived reset token
+        const resetToken = jwt.sign({ id: user._id, purpose: 'reset' }, process.env.JWT_SECRET, { expiresIn: '15m' });
+
+        // Clear OTP after successful verification
+        user.otp = undefined;
+        user.otpExpiry = undefined;
+        await user.save({ validateBeforeSave: false });
+
+        res.json({ success: true, resetToken });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+};
+
+// ─── RESET PASSWORD ───
+// POST /api/auth/admin/reset-password
+exports.resetPassword = async (req, res) => {
+    try {
+        const { resetToken, newPassword } = req.body;
+        if (!resetToken || !newPassword) {
+            return res.status(400).json({ success: false, error: 'Reset token and new password are required' });
+        }
+
+        if (newPassword.length < 6) {
+            return res.status(400).json({ success: false, error: 'Password must be at least 6 characters' });
+        }
+
+        let decoded;
+        try {
+            decoded = jwt.verify(resetToken, process.env.JWT_SECRET);
+        } catch {
+            return res.status(400).json({ success: false, error: 'Invalid or expired reset token' });
+        }
+
+        if (decoded.purpose !== 'reset') {
+            return res.status(400).json({ success: false, error: 'Invalid reset token' });
+        }
+
+        const user = await User.findById(decoded.id).select('+password');
+        if (!user) {
+            return res.status(404).json({ success: false, error: 'User not found' });
+        }
+
+        user.password = newPassword; // pre-save hook will hash it
+        await user.save();
+
+        res.json({ success: true, message: 'Password reset successfully' });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+};
+
+// ─── APPROVE STUDENT & ASSIGN MESS ───
+// PUT /api/auth/admin/approve-student/:id
+exports.approveStudent = async (req, res) => {
+    try {
+        const { messNumber } = req.body;
+        if (!messNumber) {
+            return res.status(400).json({ success: false, error: 'Mess number is required' });
+        }
+
+        const student = await User.findById(req.params.id);
+        if (!student) {
+            return res.status(404).json({ success: false, error: 'Student not found' });
+        }
+
+        if (student.role !== 'student') {
+            return res.status(400).json({ success: false, error: 'Can only approve student accounts' });
+        }
+
+        student.isApproved = true;
+        student.messNumber = messNumber;
+        await student.save();
+
+        res.json({ success: true, user: userResponse(student) });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+};
+
+// ─── REJECT / REMOVE STUDENT ───
+// DELETE /api/auth/admin/reject-student/:id
+exports.rejectStudent = async (req, res) => {
+    try {
+        const student = await User.findById(req.params.id);
+        if (!student) {
+            return res.status(404).json({ success: false, error: 'Student not found' });
+        }
+
+        if (student.role !== 'student') {
+            return res.status(400).json({ success: false, error: 'Can only reject student accounts' });
+        }
+
+        await User.findByIdAndDelete(req.params.id);
+        res.json({ success: true, message: 'Student registration rejected' });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+};
+
+// ─── GET PENDING STUDENTS ───
+// GET /api/auth/admin/pending-students
+exports.getPendingStudents = async (req, res) => {
+    try {
+        const students = await User.find({ role: 'student', isApproved: false, profileComplete: true })
+            .sort({ createdAt: -1 });
+        res.json({ success: true, count: students.length, students: students.map(userResponse) });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+};
+
+// ─── GET ALL APPROVED STUDENTS ───
+// GET /api/auth/admin/approved-students
+exports.getApprovedStudents = async (req, res) => {
+    try {
+        const students = await User.find({ role: 'student', isApproved: true })
+            .sort({ createdAt: -1 });
+        res.json({ success: true, count: students.length, students: students.map(userResponse) });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+};
+
+// ─── GET PROFILE ───
+// GET /api/auth/profile
+exports.getProfile = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+        res.json({ success: true, user: userResponse(user) });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+};
+
+// ─── GET ALL USERS (admin) ───
+// GET /api/auth/users
 exports.getUsers = async (req, res) => {
     try {
         const users = await User.find().select('-password').sort({ createdAt: -1 });
-        res.json({ success: true, count: users.length, users });
+        res.json({ success: true, count: users.length, users: users.map(userResponse) });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
     }

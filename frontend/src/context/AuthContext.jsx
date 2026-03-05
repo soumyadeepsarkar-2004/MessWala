@@ -25,15 +25,30 @@ export const AuthProvider = ({ children }) => {
         setLoading(false);
     }, []);
 
-    const googleLogin = async (credential, captchaToken) => {
-        const res = await api.post('/auth/google', { credential, captchaToken });
-        const { token: newToken, user: userData } = res.data;
-
+    const saveAuth = (newToken, userData) => {
         localStorage.setItem('messwala_token', newToken);
         localStorage.setItem('messwala_user', JSON.stringify(userData));
         setToken(newToken);
         setUser(userData);
-        return userData;
+    };
+
+    const googleLogin = async (credential, captchaToken) => {
+        const res = await api.post('/auth/google', { credential, captchaToken });
+        const { token: newToken, user: userData } = res.data;
+        saveAuth(newToken, userData);
+        return res.data;
+    };
+
+    const adminLogin = async (email, password) => {
+        const res = await api.post('/auth/admin/login', { email, password });
+        const { token: newToken, user: userData } = res.data;
+        saveAuth(newToken, userData);
+        return res.data;
+    };
+
+    const updateUser = (userData) => {
+        localStorage.setItem('messwala_user', JSON.stringify(userData));
+        setUser(userData);
     };
 
     const logout = () => {
@@ -47,7 +62,7 @@ export const AuthProvider = ({ children }) => {
 
     return (
         <AuthContext.Provider
-            value={{ user, token, loading, googleLogin, logout, isRole }}
+            value={{ user, token, loading, googleLogin, adminLogin, updateUser, logout, isRole }}
         >
             {children}
         </AuthContext.Provider>

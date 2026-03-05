@@ -8,13 +8,13 @@ const {
     exportCSV,
     deleteExpense,
 } = require('../controllers/expenseController');
-const { protect, authorize } = require('../middleware/authMiddleware');
+const { protect, authorize, requireApproval } = require('../middleware/authMiddleware');
 
-router.post('/', protect, authorize('treasurer', 'admin'), addExpense);
-router.get('/', protect, getExpenses);
-router.get('/summary', protect, getMonthlySummary);
-router.get('/cost-per-plate', protect, getCostPerPlate);
-router.get('/export', protect, authorize('treasurer', 'admin'), exportCSV);
-router.delete('/:id', protect, authorize('treasurer', 'admin'), deleteExpense);
+router.post('/', protect, requireApproval, authorize('treasurer', 'admin'), addExpense);
+router.get('/', protect, requireApproval, getExpenses);
+router.get('/summary', protect, requireApproval, getMonthlySummary);
+router.get('/cost-per-plate', protect, requireApproval, getCostPerPlate);
+router.get('/export', protect, requireApproval, authorize('treasurer', 'admin'), exportCSV);
+router.delete('/:id', protect, requireApproval, authorize('treasurer', 'admin'), deleteExpense);
 
 module.exports = router;

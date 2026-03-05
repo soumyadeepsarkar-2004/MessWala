@@ -8,7 +8,6 @@ const protect = async (req, res, next) => {
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
         token = req.headers.authorization.split(' ')[1];
     } else if (req.query.token) {
-        // Support token via query param (for CSV export / window.open)
         token = req.query.token;
     }
 
@@ -43,4 +42,16 @@ const authorize = (...roles) => {
     };
 };
 
-module.exports = { protect, authorize };
+// Require approved student (or admin/manager/treasurer pass through)
+const requireApproval = (req, res, next) => {
+    if (req.user.role === 'student' && !req.user.isApproved) {
+        return res.status(403).json({
+            success: false,
+            error: 'Your account is pending approval by the manager',
+            pendingApproval: true,
+        });
+    }
+    next();
+};
+
+module.exports = { protect, authorize, requireApproval };

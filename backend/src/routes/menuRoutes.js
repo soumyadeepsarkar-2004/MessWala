@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const { setMenu, getTodayMenu, getMenu } = require('../controllers/menuController');
-const { protect, authorize } = require('../middleware/authMiddleware');
+const { protect, authorize, requireApproval } = require('../middleware/authMiddleware');
 
-router.post('/', protect, authorize('manager', 'admin'), setMenu);
-router.get('/today', protect, getTodayMenu);
-router.get('/', protect, getMenu);
+router.post('/', protect, requireApproval, authorize('manager', 'admin'), setMenu);
+router.get('/today', protect, requireApproval, getTodayMenu);
+router.get('/', protect, requireApproval, getMenu);
 
 module.exports = router;
