@@ -45,6 +45,11 @@ const menuRoutes = require('./src/routes/menuRoutes');
 const analyticsRoutes = require('./src/routes/analyticsRoutes');
 const taskRoutes = require('./src/routes/taskRoutes');
 
+// Root health check (Railway may probe /)
+app.get('/', (req, res) => {
+  res.json({ status: 'ok', service: 'MessWala API' });
+});
+
 // Health check (before other routes so it always works)
 app.get('/api/health', (req, res) => {
   const dbState = mongoose.connection.readyState;
@@ -98,7 +103,7 @@ const mongoUri = process.env.MONGO_URI;
 
 // Start the HTTP server immediately so Railway sees a healthy port binding
 // (prevents Railway from marking the service as crashed during DB connection retries)
-const server = app.listen(PORT, '0.0.0.0', () => {
+const server = app.listen(PORT, () => {
   console.log(`🚀 MessWala server listening on port ${PORT}`);
 });
 
