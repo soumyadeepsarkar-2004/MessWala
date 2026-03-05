@@ -161,8 +161,8 @@ if (!process.env.VERCEL) {
     });
   });
 } else {
-  // Serverless: connect once at module load
-  connectDB().catch((err) => console.error('❌ Serverless MongoDB error:', err.message));
+  // Serverless: connect once at module load, store promise for handler to await
+  app.dbReady = connectDB().catch((err) => console.error('❌ Serverless MongoDB error:', err.message));
 }
 
 module.exports = app;
