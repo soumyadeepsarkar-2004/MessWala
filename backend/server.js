@@ -8,8 +8,20 @@ require('dotenv').config();
 const app = express();
 
 // CORS must be before helmet so preflight OPTIONS requests get proper headers
+const ALLOWED_ORIGINS = [
+  'https://mess-walah.vercel.app',
+  'http://localhost:5173',
+  'http://localhost:3000',
+];
+
 app.use(cors({
-  origin: true, // reflect request origin (supports credentials)
+  origin: function (origin, callback) {
+    if (!origin || ALLOWED_ORIGINS.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
@@ -96,8 +108,8 @@ if (!process.env.MONGO_URI) {
 }
 
 if (!process.env.JWT_SECRET) {
-  console.warn('⚠️ WARNING: JWT_SECRET not set. Using built-in fallback.');
-  process.env.JWT_SECRET = 'mW$2026!xK9pLqR#vTzYn@8sFdGhJb4c';
+  console.error('FATAL: JWT_SECRET environment variable is missing.');
+  if (!process.env.VERCEL) process.exit(1);
 }
 
 const mongoUri = process.env.MONGO_URI;

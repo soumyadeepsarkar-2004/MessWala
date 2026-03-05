@@ -53,7 +53,6 @@ export default function App() {
                 <Routes>
                     <Route path="/" element={user ? <Navigate to="/dashboard" /> : <HomePage />} />
                     <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <LoginPage />} />
-                    <Route path="/register" element={<Navigate to="/login" />} />
                     <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
                     {/* Student onboarding flow */}
