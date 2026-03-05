@@ -102,9 +102,9 @@ if (!process.env.JWT_SECRET) {
 const mongoUri = process.env.MONGO_URI;
 
 // Start the HTTP server immediately so Railway sees a healthy port binding
-// (prevents Railway from marking the service as crashed during DB connection retries)
-const server = app.listen(PORT, () => {
-  console.log(`🚀 MessWala server listening on port ${PORT}`);
+// Bind to 0.0.0.0 explicitly — required in containers where IPv6 (::) default may not work
+const server = app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 MessWala server listening on 0.0.0.0:${PORT}`);
 });
 
 // Connect to MongoDB with automatic retry
