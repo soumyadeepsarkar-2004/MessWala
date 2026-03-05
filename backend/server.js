@@ -32,9 +32,7 @@ const authLimiter = rateLimit({
   message: { success: false, error: 'Too many attempts, please try again after 15 minutes' },
 });
 
-// Apply rate limiter to auth routes
-app.use('/api/auth/login', authLimiter);
-app.use('/api/auth/register', authLimiter);
+app.use('/api/auth/google', authLimiter);
 
 // Route imports
 const authRoutes = require('./src/routes/authRoutes');

@@ -2,7 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import Navbar from './components/Navbar';
 import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
+
 import DashboardPage from './pages/DashboardPage';
 import AttendancePage from './pages/AttendancePage';
 import ExpensesPage from './pages/ExpensesPage';
@@ -39,7 +39,7 @@ export default function App() {
                 <Routes>
                     <Route path="/" element={user ? <Navigate to="/dashboard" /> : <HomePage />} />
                     <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <LoginPage />} />
-                    <Route path="/register" element={user ? <Navigate to="/dashboard" /> : <RegisterPage />} />
+                    <Route path="/register" element={<Navigate to="/login" />} />
                     <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
                     <Route path="/attendance" element={<ProtectedRoute><AttendancePage /></ProtectedRoute>} />
                     <Route path="/expenses" element={<ProtectedRoute><ExpensesPage /></ProtectedRoute>} />

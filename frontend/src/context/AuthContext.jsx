@@ -25,19 +25,8 @@ export const AuthProvider = ({ children }) => {
         setLoading(false);
     }, []);
 
-    const login = async (email, password) => {
-        const res = await api.post('/auth/login', { email, password });
-        const { token: newToken, user: userData } = res.data;
-
-        localStorage.setItem('messwala_token', newToken);
-        localStorage.setItem('messwala_user', JSON.stringify(userData));
-        setToken(newToken);
-        setUser(userData);
-        return userData;
-    };
-
-    const register = async (data) => {
-        const res = await api.post('/auth/register', data);
+    const googleLogin = async (credential, captchaToken) => {
+        const res = await api.post('/auth/google', { credential, captchaToken });
         const { token: newToken, user: userData } = res.data;
 
         localStorage.setItem('messwala_token', newToken);
@@ -58,7 +47,7 @@ export const AuthProvider = ({ children }) => {
 
     return (
         <AuthContext.Provider
-            value={{ user, token, loading, login, register, logout, isRole }}
+            value={{ user, token, loading, googleLogin, logout, isRole }}
         >
             {children}
         </AuthContext.Provider>

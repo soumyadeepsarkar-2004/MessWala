@@ -1,5 +1,8 @@
 const jwt = require('jsonwebtoken');
+const { OAuth2Client } = require('google-auth-library');
 const User = require('../models/User');
+
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // Generate JWT token
 const generateToken = (id) => {
@@ -8,61 +11,60 @@ const generateToken = (id) => {
     });
 };
 
-// @desc    Register user
-// @route   POST /api/auth/register
-exports.register = async (req, res) => {
-    try {
-        const { name, email, password, role, roomNumber } = req.body;
+// Verify reCAPTCHA v3 token
+async function verifyCaptcha(token) {
+    const secret = process.env.RECAPTCHA_SECRET_KEY;
+    if (!secret) return true; // skip in dev if not configured
+    const res = await fetch(
+        `https://www.google.com/recaptcha/api/siteverify?secret=${encodeURIComponent(secret)}&response=${encodeURIComponent(token)}`
+    );
+    const data = await res.json();
+    return data.success && data.score >= 0.5;
+}
 
-        // Check if user exists
-        const existingUser = await User.findOne({ email });
-        if (existingUser) {
-            return res.status(400).json({ success: false, error: 'Email already registered' });
+// @desc    Google Sign-In (login or auto-register)
+// @route   POST /api/auth/google
+exports.googleAuth = async (req, res) => {
+    try {
+        const { credential, captchaToken } = req.body;
+
+        if (!credential) {
+            return res.status(400).json({ success: false, error: 'Google credential is required' });
         }
 
-        // Only allow 'student' role on public registration
-        // Admin must manually change roles from the database or admin panel
-        const safeRole = 'student';
-        const user = await User.create({ name, email, password, role: safeRole, roomNumber });
+        // Verify reCAPTCHA
+        const captchaValid = await verifyCaptcha(captchaToken);
+        if (!captchaValid) {
+            return res.status(403).json({ success: false, error: 'CAPTCHA verification failed. Please try again.' });
+        }
 
-        const token = generateToken(user._id);
-
-        res.status(201).json({
-            success: true,
-            token,
-            user: {
-                id: user._id,
-                name: user.name,
-                email: user.email,
-                role: user.role,
-                roomNumber: user.roomNumber,
-            },
+        // Verify Google token
+        const ticket = await googleClient.verifyIdToken({
+            idToken: credential,
+            audience: process.env.GOOGLE_CLIENT_ID,
         });
-    } catch (err) {
-        res.status(500).json({ success: false, error: err.message });
-    }
-};
+        const payload = ticket.getPayload();
+        const { sub: googleId, email, name, picture } = payload;
 
-// @desc    Login user
-// @route   POST /api/auth/login
-exports.login = async (req, res) => {
-    try {
-        const { email, password } = req.body;
+        // Find existing user or create new one
+        let user = await User.findOne({ $or: [{ googleId }, { email }] });
 
-        if (!email || !password) {
-            return res.status(400).json({ success: false, error: 'Please provide email and password' });
-        }
-
-        const user = await User.findOne({ email }).select('+password');
-
-        if (!user) {
-            return res.status(401).json({ success: false, error: 'Invalid credentials' });
-        }
-
-        const isMatch = await user.matchPassword(password);
-
-        if (!isMatch) {
-            return res.status(401).json({ success: false, error: 'Invalid credentials' });
+        if (user) {
+            // Link Google account if user exists by email but not yet linked
+            if (!user.googleId) {
+                user.googleId = googleId;
+                if (picture) user.avatar = picture;
+                await user.save();
+            }
+        } else {
+            // Auto-register as student
+            user = await User.create({
+                name,
+                email,
+                googleId,
+                avatar: picture || '',
+                role: 'student',
+            });
         }
 
         const token = generateToken(user._id);
@@ -76,9 +78,13 @@ exports.login = async (req, res) => {
                 email: user.email,
                 role: user.role,
                 roomNumber: user.roomNumber,
+                avatar: user.avatar,
             },
         });
     } catch (err) {
+        if (err.message?.includes('Token used too late') || err.message?.includes('Invalid token')) {
+            return res.status(401).json({ success: false, error: 'Google sign-in expired. Please try again.' });
+        }
         res.status(500).json({ success: false, error: err.message });
     }
 };
