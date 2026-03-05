@@ -15,8 +15,13 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
-// Security middleware (after CORS)
-app.use(helmet());
+// Security middleware (after CORS) - disabled crossOriginResourcePolicy for Railway proxy
+app.use(helmet({
+  crossOriginResourcePolicy: false,
+  crossOriginOpenerPolicy: false,
+  crossOriginEmbedderPolicy: false,
+  contentSecurityPolicy: false,
+}));
 
 app.use(express.json());
 
