@@ -89,9 +89,8 @@ console.log(`MONGO_URI Configured: ${process.env.MONGO_URI ? 'YES (Env Var)' : '
 console.log(`JWT_SECRET Configured: ${process.env.JWT_SECRET ? 'YES' : 'NO - FATAL ERROR (login will fail)'}`);
 
 if (!process.env.MONGO_URI) {
-  console.error('❌ FATAL ERROR: MONGO_URI environment variable is missing.');
-  console.error('💡 TIP: Go to Railway Dashboard -> Variables and add MONGO_URI');
-  process.exit(1);
+  console.error('FATAL: MONGO_URI environment variable is missing.');
+  if (!process.env.VERCEL) process.exit(1);
 }
 
 if (!process.env.JWT_SECRET) {
@@ -101,68 +100,69 @@ if (!process.env.JWT_SECRET) {
 
 const mongoUri = process.env.MONGO_URI;
 
-// Start the HTTP server immediately so Railway sees a healthy port binding
-// Bind to 0.0.0.0 explicitly — required in containers where IPv6 (::) default may not work
-const server = app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 MessWala server listening on 0.0.0.0:${PORT}`);
-});
+// MongoDB connection with caching for serverless
+let cachedConnection = null;
 
-// Connect to MongoDB with automatic retry
-const MAX_RETRIES = 10;
-let retryCount = 0;
-
-function connectWithRetry() {
-  console.log(`🔄 Attempting MongoDB connection (attempt ${retryCount + 1}/${MAX_RETRIES})...`);
-  mongoose
+function connectDB() {
+  if (cachedConnection && mongoose.connection.readyState === 1) {
+    return Promise.resolve(cachedConnection);
+  }
+  return mongoose
     .connect(mongoUri, {
-      serverSelectionTimeoutMS: 10000,   // fail fast per attempt
+      serverSelectionTimeoutMS: 10000,
       socketTimeoutMS: 45000,
     })
-    .then(() => {
+    .then((conn) => {
       console.log('✅ MongoDB connected successfully');
-      retryCount = 0; // reset for any future reconnects
-    })
-    .catch((err) => {
-      retryCount++;
-      console.error(`❌ MongoDB connection error (attempt ${retryCount}/${MAX_RETRIES}):`, err.message);
-      if (err.message.includes('whitelist') || err.message.includes('IP')) {
-        console.error('💡 FIX: Go to MongoDB Atlas → Network Access → Add IP Address → Allow Access from Anywhere (0.0.0.0/0)');
-      }
-      if (retryCount < MAX_RETRIES) {
-        const delay = Math.min(retryCount * 5000, 30000); // 5s, 10s, 15s... max 30s
-        console.log(`⏳ Retrying in ${delay / 1000}s...`);
-        setTimeout(connectWithRetry, delay);
-      } else {
-        console.error('❌ Max retries reached. Server stays up but DB is unavailable.');
-        console.error('💡 Fix the issue and redeploy, or the server will accept requests but return 503 on DB-dependent routes.');
-      }
+      cachedConnection = conn;
+      return conn;
     });
 }
 
-// Handle disconnection events for auto-reconnect
-mongoose.connection.on('disconnected', () => {
-  console.warn('⚠️ MongoDB disconnected. Will attempt reconnect...');
-  if (retryCount === 0) {
-    retryCount = 0;
-    setTimeout(connectWithRetry, 5000);
-  }
-});
-
 mongoose.connection.on('error', (err) => {
-  console.error('⚠️ MongoDB connection error event:', err.message);
+  console.error('⚠️ MongoDB connection error:', err.message);
+  cachedConnection = null;
 });
 
-connectWithRetry();
+mongoose.connection.on('disconnected', () => {
+  console.warn('⚠️ MongoDB disconnected.');
+  cachedConnection = null;
+});
 
-// Graceful shutdown
-process.on('SIGTERM', () => {
-  console.log('🛑 SIGTERM received. Shutting down gracefully...');
-  server.close(() => {
-    mongoose.connection.close(false, () => {
-      console.log('MongoDB connection closed.');
-      process.exit(0);
+// In serverless (Vercel), don't start a listener — just connect to DB
+// In standalone mode, start the HTTP server
+if (!process.env.VERCEL) {
+  const server = app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 MessWala server listening on 0.0.0.0:${PORT}`);
+  });
+
+  // Retry logic for standalone server
+  const MAX_RETRIES = 10;
+  let retryCount = 0;
+
+  function connectWithRetry() {
+    console.log(`🔄 MongoDB connection attempt ${retryCount + 1}/${MAX_RETRIES}...`);
+    connectDB().catch((err) => {
+      retryCount++;
+      console.error(`❌ MongoDB error (attempt ${retryCount}/${MAX_RETRIES}):`, err.message);
+      if (retryCount < MAX_RETRIES) {
+        const delay = Math.min(retryCount * 5000, 30000);
+        console.log(`⏳ Retrying in ${delay / 1000}s...`);
+        setTimeout(connectWithRetry, delay);
+      }
+    });
+  }
+  connectWithRetry();
+
+  process.on('SIGTERM', () => {
+    console.log('🛑 SIGTERM received. Shutting down...');
+    server.close(() => {
+      mongoose.connection.close(false, () => process.exit(0));
     });
   });
-});
+} else {
+  // Serverless: connect once at module load
+  connectDB().catch((err) => console.error('❌ Serverless MongoDB error:', err.message));
+}
 
 module.exports = app;
