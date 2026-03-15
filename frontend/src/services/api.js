@@ -25,7 +25,7 @@ api.interceptors.request.use(
 api.interceptors.response.use(
     (response) => response,
     (error) => {
-        if (error.response?.status === 401) {
+        if (error.response?.status === 401 && !error.config.url.includes('/auth/')) {
             localStorage.removeItem('messwala_token');
             localStorage.removeItem('messwala_user');
             window.location.href = '/login';

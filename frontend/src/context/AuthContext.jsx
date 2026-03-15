@@ -15,14 +15,33 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const savedToken = localStorage.getItem('messwala_token');
-        const savedUser = localStorage.getItem('messwala_user');
+        const initAuth = async () => {
+            const savedToken = localStorage.getItem('messwala_token');
+            const savedUser = localStorage.getItem('messwala_user');
 
-        if (savedToken && savedUser) {
-            setToken(savedToken);
-            setUser(JSON.parse(savedUser));
-        }
-        setLoading(false);
+            if (savedToken && savedUser) {
+                setToken(savedToken);
+                setUser(JSON.parse(savedUser));
+
+                try {
+                    const res = await api.get('/auth/profile');
+                    if (res.data.success) {
+                        setUser(res.data.user);
+                        localStorage.setItem('messwala_user', JSON.stringify(res.data.user));
+                    }
+                } catch (err) {
+                    console.error('Failed to verify token:', err);
+                    if (err.response?.status === 401) {
+                        localStorage.removeItem('messwala_token');
+                        localStorage.removeItem('messwala_user');
+                        setToken(null);
+                        setUser(null);
+                    }
+                }
+            }
+            setLoading(false);
+        };
+        initAuth();
     }, []);
 
     const saveAuth = (newToken, userData) => {

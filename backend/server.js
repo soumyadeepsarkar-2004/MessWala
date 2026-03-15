@@ -18,6 +18,9 @@ const ALLOWED_ORIGINS = [
 if (process.env.RENDER_EXTERNAL_URL) {
   ALLOWED_ORIGINS.push(process.env.RENDER_EXTERNAL_URL);
 }
+if (process.env.FRONTEND_URL) {
+  ALLOWED_ORIGINS.push(process.env.FRONTEND_URL);
+}
 
 app.use(cors({
   origin: function (origin, callback) {
