@@ -6,15 +6,30 @@ export default defineConfig({
     build: {
         rollupOptions: {
             output: {
-                manualChunks: {
-                    'vendor-react': ['react', 'react-dom', 'react-router-dom'],
-                    'vendor-ui': ['react-hot-toast', 'react-icons'],
-                    'vendor-charts': ['recharts'],
-                    'vendor-auth': ['@react-oauth/google', 'react-google-recaptcha-v3'],
-                    'vendor-other': ['axios'],
-                    'pages-auth': ['./src/pages/LoginPage.jsx', './src/pages/OnboardingPage.jsx', './src/pages/PendingApprovalPage.jsx', './src/pages/ForgotPasswordPage.jsx'],
-                    'pages-main': ['./src/pages/DashboardPage.jsx', './src/pages/AttendancePage.jsx', './src/pages/ExpensesPage.jsx', './src/pages/AnalyticsPage.jsx'],
-                    'pages-other': ['./src/pages/FeedbackPage.jsx', './src/pages/MenuPage.jsx', './src/pages/TasksPage.jsx', './src/pages/StudentManagementPage.jsx'],
+                manualChunks(id) {
+                    if (id.includes('node_modules')) {
+                        if (id.includes('react')) {
+                            return 'vendor-react';
+                        } else if (id.includes('react-hot-toast') || id.includes('react-icons')) {
+                            return 'vendor-ui';
+                        } else if (id.includes('recharts')) {
+                            return 'vendor-charts';
+                        } else if (id.includes('@react-oauth') || id.includes('react-google-recaptcha')) {
+                            return 'vendor-auth';
+                        } else if (id.includes('axios')) {
+                            return 'vendor-other';
+                        }
+                        return 'vendor-other';
+                    }
+                    if (id.includes('LoginPage') || id.includes('OnboardingPage') || id.includes('PendingApprovalPage') || id.includes('ForgotPasswordPage')) {
+                        return 'pages-auth';
+                    }
+                    if (id.includes('DashboardPage') || id.includes('AttendancePage') || id.includes('ExpensesPage') || id.includes('AnalyticsPage')) {
+                        return 'pages-main';
+                    }
+                    if (id.includes('FeedbackPage') || id.includes('MenuPage') || id.includes('TasksPage') || id.includes('StudentManagementPage')) {
+                        return 'pages-other';
+                    }
                 },
             },
         },
