@@ -62,10 +62,10 @@ Before starting, ensure you have:
 3. Select "Node.js" and version "4.x or later"
 4. Copy connection string (example with placeholders):
    ```
-   mongodb+srv://YOUR_USERNAME:YOUR_PASSWORD@cluster0.xxxxx.mongodb.net/?retryWrites=true&w=majority
+   mongodb+srv://<cluster-host>/<database>?retryWrites=true&w=majority
    ```
-5. **Replace `YOUR_USERNAME` and `YOUR_PASSWORD`** with your actual MongoDB credentials
-6. **IMPORTANT:** Never commit actual credentials to git. Use `.env` file instead.
+5. Add credentials only in environment variables (for example `MONGO_URI` in `.env`)
+6. **IMPORTANT:** Never commit credential-bearing URIs to git.
 
 ---
 
@@ -298,8 +298,8 @@ If first login, you'll see setup wizard:
 
 **Test Connection (Example - use YOUR actual credentials):**
 ```bash
-# Example syntax (DO NOT use "password" as value - replace with actual credentials):
-mongosh "mongodb+srv://YOUR_USERNAME:YOUR_PASSWORD@cluster0.xxxxx.mongodb.net/" --username YOUR_USERNAME
+# Use your env var locally instead of embedding credentials in commands:
+mongosh "$env:MONGO_URI"
 ```
 
 ⚠️ **SECURITY NOTE:** Never put real credentials in example code or documentation. Always use environment variables (.env files).

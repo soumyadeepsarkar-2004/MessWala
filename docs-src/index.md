@@ -127,7 +127,7 @@ MessWala follows industry best practices:
 - Attach screenshots if applicable
 
 **Want to contribute?**
-- See [CONTRIBUTING.md](../CONTRIBUTING.md) in the repository
+- See [CONTRIBUTING.md](https://github.com/soumyadeepsarkar-2004/MessWala/blob/main/CONTRIBUTING.md) in the repository
 - Fork the repo and submit PRs
 - Follow code style guidelines
 
@@ -185,7 +185,7 @@ graph LR
 
 ## 📄 Legal
 
-- **License:** See [LICENSE](../LICENSE) file
+- **License:** See [LICENSE](https://github.com/soumyadeepsarkar-2004/MessWala/blob/main/LICENSE)
 - **Privacy Policy:** TBD
 - **Terms of Service:** TBD
-- **Contributing:** See [CONTRIBUTING.md](../CONTRIBUTING.md)
+- **Contributing:** See [CONTRIBUTING.md](https://github.com/soumyadeepsarkar-2004/MessWala/blob/main/CONTRIBUTING.md)

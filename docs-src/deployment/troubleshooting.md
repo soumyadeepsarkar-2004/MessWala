@@ -477,4 +477,4 @@ When reporting an issue:
 
 **Last Updated:** March 17, 2026  
 **Version:** 2.0  
-**Still need help?** Check [Getting Started](guides/getting-started.md) or contact your admin.
+**Still need help?** Check [Getting Started](../guides/getting-started.md) or contact your admin.

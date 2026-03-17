@@ -1,10 +1,12 @@
 site_name: MessWala Documentation
 site_description: Complete documentation for MessWala mess management system
 site_author: Soumyadeep Sarkar
-site_url: https://docs.messwala.com
+site_url: https://soumyadeepsarkar-2004.github.io/MessWala/
 repo_url: https://github.com/soumyadeepsarkar-2004/MessWala
 repo_name: MessWala
-edit_uri: edit/main/docs/
+edit_uri: edit/main/docs-src/
+docs_dir: docs-src
+site_dir: docs
 
 theme:
   name: material
@@ -15,8 +17,6 @@ theme:
     - scheme: dark
       primary: blue
       accent: blue
-  logo: assets/logo.png
-  favicon: assets/favicon.ico
   features:
     - navigation.instant
     - navigation.tracking
