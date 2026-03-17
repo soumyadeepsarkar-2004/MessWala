@@ -60,11 +60,12 @@ Before starting, ensure you have:
 1. Click "Databases" → "Connect"
 2. Choose "Drivers" (not Compass)
 3. Select "Node.js" and version "4.x or later"
-4. Copy connection string:
+4. Copy connection string (example with placeholders):
    ```
-   mongodb+srv://dbuser:<password>@cluster0.xxxxx.mongodb.net/?retryWrites=true&w=majority
+   mongodb+srv://YOUR_USERNAME:YOUR_PASSWORD@cluster0.xxxxx.mongodb.net/?retryWrites=true&w=majority
    ```
-5. Replace `<password>` with your user password
+5. **Replace `YOUR_USERNAME` and `YOUR_PASSWORD`** with your actual MongoDB credentials
+6. **IMPORTANT:** Never commit actual credentials to git. Use `.env` file instead.
 
 ---
 
@@ -295,11 +296,13 @@ If first login, you'll see setup wizard:
 3. Database user password
 4. Username/password don't have special characters that need escaping
 
-**Test:**
+**Test Connection (Example - use YOUR actual credentials):**
 ```bash
-# Don't do this in production, but for testing:
-mongosh "mongodb+srv://dbuser:password@cluster0.xxxxx.mongodb.net/" --username dbuser --password
+# Example syntax (DO NOT use "password" as value - replace with actual credentials):
+mongosh "mongodb+srv://YOUR_USERNAME:YOUR_PASSWORD@cluster0.xxxxx.mongodb.net/" --username YOUR_USERNAME
 ```
+
+⚠️ **SECURITY NOTE:** Never put real credentials in example code or documentation. Always use environment variables (.env files).
 
 ---
 
