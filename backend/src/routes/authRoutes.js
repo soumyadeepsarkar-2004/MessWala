@@ -13,6 +13,8 @@ const {
     getApprovedStudents,
     getProfile,
     getUsers,
+    adminSetup,
+    getMessConfig,
 } = require('../controllers/authController');
 const { protect, authorize } = require('../middleware/authMiddleware');
 
@@ -22,10 +24,14 @@ router.post('/google', googleAuth);
 router.post('/admin/forgot-password', forgotPassword);
 router.post('/admin/verify-otp', verifyOTP);
 router.post('/admin/reset-password', resetPassword);
+router.get('/admin/config', getMessConfig);
 
 // Protected routes
 router.post('/student/complete-profile', protect, completeProfile);
 router.get('/profile', protect, getProfile);
+
+// Admin setup (first-time configuration)
+router.post('/admin/setup', protect, authorize('admin'), adminSetup);
 
 // Admin / Manager routes
 router.get('/admin/pending-students', protect, authorize('admin', 'manager'), getPendingStudents);

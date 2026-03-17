@@ -1,9 +1,11 @@
 import { Suspense, lazy } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
+import { useConfig } from './context/ConfigContext';
 import Navbar from './components/Navbar';
 
 // Lazy-loaded pages
+const AdminSetupPage = lazy(() => import('./pages/AdminSetupPage'));
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const OnboardingPage = lazy(() => import('./pages/OnboardingPage'));
 const PendingApprovalPage = lazy(() => import('./pages/PendingApprovalPage'));
@@ -26,16 +28,18 @@ const PageLoadingFallback = () => (
 
 const ProtectedRoute = ({ children, roles }) => {
     const { user, loading } = useAuth();
+    const { config, loading: configLoading } = useConfig();
 
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center min-h-screen">
-                <div className="w-12 h-12 rounded-full border-4 border-primary-200 border-t-primary-500 animate-spin" />
-            </div>
-        );
+    if (loading || configLoading) {
+        return <PageLoadingFallback />;
     }
 
     if (!user) return <Navigate to="/login" />;
+
+    // Admin setup check: if admin and mess not configured, go to setup
+    if (user.role === 'admin' && config && !config.isSetup) {
+        return <Navigate to="/admin/setup" />;
+    }
 
     // Students: check profile completion and approval
     if (user.role === 'student') {
@@ -50,9 +54,10 @@ const ProtectedRoute = ({ children, roles }) => {
 
 export default function App() {
     const { user } = useAuth();
+    const { config, loading: configLoading } = useConfig();
 
     // Determine if we should show Navbar (only for approved users accessing main app)
-    const showNavbar = user && (user.role !== 'student' || (user.profileComplete && user.isApproved));
+    const showNavbar = user && (user.role !== 'student' || (user.profileComplete && user.isApproved)) && !(!config?.isSetup && user.role === 'admin');
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-dark-950 transition-colors duration-300">
@@ -63,6 +68,13 @@ export default function App() {
                         <Route path="/" element={user ? <Navigate to="/dashboard" /> : <HomePage />} />
                         <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <LoginPage />} />
                         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+
+                        {/* Admin setup (first-time configuration) */}
+                        <Route path="/admin/setup" element={
+                            user && user.role === 'admin' && config && !config.isSetup
+                                ? <AdminSetupPage />
+                                : <Navigate to={user ? '/dashboard' : '/login'} />
+                        } />
 
                         {/* Student onboarding flow */}
                         <Route path="/onboarding" element={

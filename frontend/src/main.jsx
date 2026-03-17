@@ -6,6 +6,7 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3';
 import App from './App';
 import { AuthProvider } from './context/AuthContext';
+import { ConfigProvider } from './context/ConfigContext';
 import './index.css';
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
@@ -17,7 +18,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
             <GoogleReCaptchaProvider reCaptchaKey={RECAPTCHA_SITE_KEY}>
                 <BrowserRouter>
                     <AuthProvider>
-                        <App />
+                        <ConfigProvider>
+                            <App />
+                        </ConfigProvider>
                         <Toaster
                             position="top-right"
                             toastOptions={{

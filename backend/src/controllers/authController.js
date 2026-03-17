@@ -361,3 +361,65 @@ exports.getUsers = async (req, res) => {
         res.status(500).json({ success: false, error: err.message });
     }
 };
+
+// ─── ADMIN SETUP (first-time onboarding) ───
+// POST /api/auth/admin/setup
+const MessConfig = require('../models/MessConfig');
+
+exports.adminSetup = async (req, res) => {
+    try {
+        // Only allow admin role
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ success: false, error: 'Only admins can configure the mess' });
+        }
+
+        // Check if setup already exists
+        let config = await MessConfig.findOne();
+        if (config && config.isSetup) {
+            return res.status(400).json({ success: false, error: 'Mess is already configured. Contact admin if changes needed.' });
+        }
+
+        const { messName, messDescription, messEmail, messPhone, expenseCategories, mealTimes, menuDays } = req.body;
+
+        if (!messName || !expenseCategories || !expenseCategories.length || !mealTimes || !mealTimes.length) {
+            return res.status(400).json({ success: false, error: 'Mess name, categories, and meal times are required' });
+        }
+
+        if (!config) {
+            config = new MessConfig();
+        }
+
+        config.messName = messName;
+        config.messDescription = messDescription || '';
+        config.messEmail = messEmail || '';
+        config.messPhone = messPhone || '';
+        config.expenseCategories = expenseCategories;
+        config.mealTimes = mealTimes;
+        config.menuDays = menuDays || ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+        config.isSetup = true;
+        config.setupCompletedAt = new Date();
+        config.setupCompletedBy = req.user.id;
+
+        await config.save();
+
+        res.json({ success: true, message: 'Mess configuration saved successfully', config });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+};
+
+// ─── GET MESS CONFIG ───
+// GET /api/auth/admin/config
+exports.getMessConfig = async (req, res) => {
+    try {
+        let config = await MessConfig.findOne();
+
+        if (!config) {
+            config = new MessConfig();
+        }
+
+        res.json({ success: true, config });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+};
