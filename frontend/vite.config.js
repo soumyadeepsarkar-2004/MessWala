@@ -3,6 +3,22 @@ import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
+    build: {
+        rollupOptions: {
+            output: {
+                manualChunks: {
+                    'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+                    'vendor-ui': ['react-hot-toast', 'react-icons'],
+                    'vendor-charts': ['recharts'],
+                    'vendor-auth': ['@react-oauth/google', 'react-google-recaptcha-v3'],
+                    'vendor-other': ['axios'],
+                    'pages-auth': ['./src/pages/LoginPage.jsx', './src/pages/OnboardingPage.jsx', './src/pages/PendingApprovalPage.jsx', './src/pages/ForgotPasswordPage.jsx'],
+                    'pages-main': ['./src/pages/DashboardPage.jsx', './src/pages/AttendancePage.jsx', './src/pages/ExpensesPage.jsx', './src/pages/AnalyticsPage.jsx'],
+                    'pages-other': ['./src/pages/FeedbackPage.jsx', './src/pages/MenuPage.jsx', './src/pages/TasksPage.jsx', './src/pages/StudentManagementPage.jsx'],
+                },
+            },
+        },
+    },
     plugins: [
         react(),
         VitePWA({
