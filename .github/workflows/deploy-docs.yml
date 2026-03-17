@@ -41,6 +41,3 @@ jobs:
           publish_dir: ./docs/site
           cname: false
           force_orphan: true
-        run: |
-          echo "✅ Docs deployed to: https://soumyadeepsarkar-2004.github.io/MessWala/"
-          echo "Build status: ${{ job.status }}"
