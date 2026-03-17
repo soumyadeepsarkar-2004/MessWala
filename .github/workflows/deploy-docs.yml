@@ -11,10 +11,6 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pages: write
-      id-token: write
 
     steps:
       - name: Checkout code
@@ -27,7 +23,7 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install MkDocs and dependencies
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install mkdocs-material
@@ -38,13 +34,13 @@ jobs:
           mkdocs build
           cd ..
 
-      - name: Deploy to GitHub Pages
-        if: success()
+      - name: Deploy built site to gh-pages branch
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs/site
           cname: false
+          force_orphan: true
         run: |
           echo "✅ Docs deployed to: https://soumyadeepsarkar-2004.github.io/MessWala/"
           echo "Build status: ${{ job.status }}"
