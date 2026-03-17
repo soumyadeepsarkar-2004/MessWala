@@ -8,6 +8,16 @@ const Menu = require('../models/Menu');
 const Feedback = require('../models/Feedback');
 const Task = require('../models/Task');
 
+console.log('🚨 WARNING: This seed script is for DEVELOPMENT ONLY');
+console.log('   It creates demo users and historical data.');
+console.log('   DO NOT RUN in production!');
+console.log('   Set ALLOW_SEED=true environment variable to proceed.\n');
+
+if (process.env.ALLOW_SEED !== 'true') {
+    console.log('⏭️  Skipping seed. To seed data, set ALLOW_SEED=true');
+    process.exit(0);
+}
+
 const CATEGORIES = ['vegetables', 'rice', 'gas', 'salary', 'dairy', 'spices', 'misc'];
 const MEAL_TYPES = ['breakfast', 'lunch', 'dinner'];
 
