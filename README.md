@@ -3,10 +3,14 @@
 > Transparent, data-driven hostel mess management with real-time cost analytics
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Docs](https://img.shields.io/badge/Docs-GitHub%20Pages-blue.svg)](https://soumyadeepsarkar-2004.github.io/MessWala/)
+[![Status](https://img.shields.io/badge/Status-Production%20Ready-brightgreen.svg)](https://github.com/soumyadeepsarkar-2004/MessWala/releases)
 
-**Live:** [mess-walah.vercel.app](https://mess-walah.vercel.app) | **API:** [messwala-6jvj.onrender.com](https://messwala-6jvj.onrender.com)
+**Live App:** [mess-walah.vercel.app](https://mess-walah.vercel.app) | **API:** [messwala-6jvj.onrender.com](https://messwala-6jvj.onrender.com) | **📚 Docs:** [GitHub Pages](https://soumyadeepsarkar-2004.github.io/MessWala/)
 
 MessWala is an open-source hostel mess management system that brings transparency, accountability, and data-driven decision-making to hostel mess operations. Built for real-world use in Indian hostels.
+
+**[📖 Full Documentation →](https://soumyadeepsarkar-2004.github.io/MessWala/)** | [Getting Started](https://soumyadeepsarkar-2004.github.io/MessWala/guides/getting-started/) | [API Docs](https://soumyadeepsarkar-2004.github.io/MessWala/api/endpoints/) | [Deployment Guide](https://soumyadeepsarkar-2004.github.io/MessWala/deployment/setup/)
 
 ## ✨ Features
 
@@ -155,9 +159,20 @@ MessWala/
 | GET | `/api/tasks` | ✅ | List tasks |
 | POST | `/api/tasks` | Manager+ | Create task |
 
+## 📚 Documentation
+
+Comprehensive documentation is available at: **[GitHub Pages](https://soumyadeepsarkar-2004.github.io/MessWala/)**
+
+- **[User Guide](https://soumyadeepsarkar-2004.github.io/MessWala/guides/getting-started/)** — How to use MessWala
+- **[API Reference](https://soumyadeepsarkar-2004.github.io/MessWala/api/endpoints/)** — Complete API documentation (25+ endpoints)
+- **[Deployment Guide](https://soumyadeepsarkar-2004.github.io/MessWala/deployment/setup/)** — Deploy to Vercel/Render/MongoDB
+- **[Architecture](https://soumyadeepsarkar-2004.github.io/MessWala/architecture/system-overview/)** — System design & database schema
+- **[Troubleshooting](https://soumyadeepsarkar-2004.github.io/MessWala/deployment/troubleshooting/)** — 50+ common issues & solutions
+- **[Admin Guide](https://soumyadeepsarkar-2004.github.io/MessWala/admin/setup-wizard/)** — Mess configuration & user management
+
 ## 🤝 Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for code guidelines and [DOCS_CONTRIBUTING.md](DOCS_CONTRIBUTING.md) for documentation guidelines.
 
 ## 📄 License
 
