@@ -1,5 +1,6 @@
 const Feedback = require('../models/Feedback');
 const Menu = require('../models/Menu');
+const { validateDateString, validatePositiveInteger } = require('../utils/validation');
 
 // @desc    Submit feedback for a meal
 // @route   POST /api/feedback
@@ -25,8 +26,14 @@ exports.submitFeedback = async (req, res) => {
 exports.getFeedback = async (req, res) => {
     try {
         const date = req.query.date || new Date().toISOString().split('T')[0];
+        
+        // Validate date format
+        const validatedDate = validateDateString(date);
+        if (!validatedDate) {
+            return res.status(400).json({ success: false, error: 'Invalid date format. Use YYYY-MM-DD' });
+        }
 
-        const feedback = await Feedback.find({ date })
+        const feedback = await Feedback.find({ date: validatedDate })
             .populate({
                 path: 'userId',
                 select: 'name roomNumber',
@@ -50,7 +57,11 @@ exports.getFeedback = async (req, res) => {
 // @route   GET /api/feedback/weekly?weeks=4
 exports.getWeeklyRatings = async (req, res) => {
     try {
-        const weeks = parseInt(req.query.weeks) || 4;
+        const weeks = validatePositiveInteger(req.query.weeks, 4);
+        if (weeks > 52) {
+            return res.status(400).json({ success: false, error: 'Maximum 52 weeks allowed' });
+        }
+        
         const daysBack = weeks * 7;
         const startDate = new Date();
         startDate.setDate(startDate.getDate() - daysBack);

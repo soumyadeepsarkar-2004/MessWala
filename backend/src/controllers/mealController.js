@@ -1,4 +1,5 @@
 const MealAttendance = require('../models/MealAttendance');
+const { validateDateString, validateMonthString } = require('../utils/validation');
 const { linearRegression } = require('../utils/predictor');
 
 // @desc    Mark meal attendance
@@ -25,9 +26,15 @@ exports.markAttendance = async (req, res) => {
 exports.getDailyHeadcount = async (req, res) => {
     try {
         const date = req.query.date || new Date().toISOString().split('T')[0];
+        
+        // Validate date format
+        const validatedDate = validateDateString(date);
+        if (!validatedDate) {
+            return res.status(400).json({ success: false, error: 'Invalid date format. Use YYYY-MM-DD' });
+        }
 
         const headcount = await MealAttendance.aggregate([
-            { $match: { date, present: true } },
+            { $match: { date: validatedDate, present: true } },
             { $group: { _id: '$mealType', count: { $sum: 1 } } },
         ]);
 
@@ -36,7 +43,7 @@ exports.getDailyHeadcount = async (req, res) => {
             result[h._id] = h.count;
         });
 
-        res.json({ success: true, date, headcount: result });
+        res.json({ success: true, date: validatedDate, headcount: result });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
     }
@@ -47,11 +54,19 @@ exports.getDailyHeadcount = async (req, res) => {
 exports.getAttendanceHistory = async (req, res) => {
     try {
         const month = req.query.month || new Date().toISOString().slice(0, 7);
-        const dateRegex = new RegExp(`^${month}`);
+        
+        // Validate month format
+        const validatedMonth = validateMonthString(month);
+        if (!validatedMonth) {
+            return res.status(400).json({ success: false, error: 'Invalid month format. Use YYYY-MM' });
+        }
 
         const history = await MealAttendance.find({
             userId: req.user.id,
-            date: { $regex: dateRegex },
+            date: {
+                $gte: validatedMonth + '-01',
+                $lt: validatedMonth + '-32'
+            }
         }).sort({ date: -1, mealType: 1 });
 
         res.json({ success: true, count: history.length, history });

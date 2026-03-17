@@ -1,11 +1,23 @@
 const Menu = require('../models/Menu');
+const { validateDateString } = require('../utils/validation');
 
 // @desc    Set menu for a date
 // @route   POST /api/menu
 exports.setMenu = async (req, res) => {
     try {
         const { date, breakfast, lunch, dinner } = req.body;
-        const menuDate = date || new Date().toISOString().split('T')[0];
+        const today = new Date().toISOString().split('T')[0];
+        
+        // Validate date input - reject invalid dates
+        let menuDate = today;
+        if (date) {
+            const validatedDate = validateDateString(date);
+            if (validatedDate) {
+                menuDate = validatedDate;
+            } else {
+                return res.status(400).json({ success: false, error: 'Invalid date format. Use YYYY-MM-DD' });
+            }
+        }
 
         const menu = await Menu.findOneAndUpdate(
             { date: menuDate },
@@ -47,7 +59,15 @@ exports.getMenu = async (req, res) => {
 
         let filter = {};
         if (start && end) {
-            filter.date = { $gte: start, $lte: end };
+            // Validate both dates - return error if invalid
+            const validatedStart = validateDateString(start);
+            const validatedEnd = validateDateString(end);
+            
+            if (!validatedStart || !validatedEnd) {
+                return res.status(400).json({ success: false, error: 'Invalid date format. Use YYYY-MM-DD' });
+            }
+            
+            filter.date = { $gte: validatedStart, $lte: validatedEnd };
         } else {
             // Default: current week
             const today = new Date();

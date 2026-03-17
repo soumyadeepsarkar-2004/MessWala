@@ -1,4 +1,5 @@
 const Task = require('../models/Task');
+const { validateEnum, validateSortOrder } = require('../utils/validation');
 
 // @desc    Create a task
 // @route   POST /api/tasks
@@ -31,16 +32,20 @@ exports.getTasks = async (req, res) => {
     try {
         const { status, sort, order } = req.query;
 
-        // Build filter
+        // Validate and build filter with safe status enum
         const filter = {};
-        if (status === 'completed') filter.completed = true;
-        else if (status === 'pending' || !status) filter.completed = false;
+        const validStatus = validateEnum(status, ['pending', 'completed', 'all'], 'pending');
+        if (validStatus === 'completed') filter.completed = true;
+        else if (validStatus === 'pending') filter.completed = false;
         // status === 'all' means no filter on completed
 
-        // Build sort
-        const sortObj = {};
-        const sortField = sort || 'createdAt';
-        const sortOrder = order === 'asc' ? 1 : -1;
+        // Validate sort field
+        const validSortFields = ['dueDate', 'priority', 'createdAt'];
+        const sortField = validSortFields.includes(sort) ? sort : 'createdAt';
+        
+        // Validate sort order
+        const validSortOrder = validateSortOrder(order);
+        const sortOrder = validSortOrder === 'asc' || validSortOrder === '1' ? 1 : -1;
 
         // Priority custom sort (high=1, medium=2, low=3)
         if (sortField === 'priority') {
@@ -73,6 +78,7 @@ exports.getTasks = async (req, res) => {
             return res.json({ success: true, count: populatedTasks.length, tasks: populatedTasks });
         }
 
+        const sortObj = {};
         sortObj[sortField] = sortOrder;
 
         const tasks = await Task.find(filter)

@@ -1,23 +1,34 @@
 const Expense = require('../models/Expense');
 const MealAttendance = require('../models/MealAttendance');
 const Feedback = require('../models/Feedback');
+const { validatePositiveInteger, validateMonthString } = require('../utils/validation');
 const { linearRegression } = require('../utils/predictor');
 
 // @desc    Get monthly expense trend (last 6 months)
 // @route   GET /api/analytics/expense-trend
 exports.getExpenseTrend = async (req, res) => {
     try {
-        const months = parseInt(req.query.months) || 6;
+        const months = validatePositiveInteger(req.query.months, 6);
+        if (months > 60) {
+            return res.status(400).json({ success: false, error: 'Maximum 60 months allowed' });
+        }
+        
         const results = [];
 
         for (let i = months - 1; i >= 0; i--) {
             const d = new Date();
             d.setMonth(d.getMonth() - i);
             const month = d.toISOString().slice(0, 7);
-            const dateRegex = new RegExp(`^${month}`);
 
             const agg = await Expense.aggregate([
-                { $match: { date: { $regex: dateRegex } } },
+                { 
+                    $match: { 
+                        date: { 
+                            $gte: month + '-01',
+                            $lt: month + '-32'
+                        } 
+                    } 
+                },
                 { $group: { _id: null, total: { $sum: '$amount' } } },
             ]);
 
@@ -38,15 +49,27 @@ exports.getExpenseTrend = async (req, res) => {
 exports.getCategoryBreakdown = async (req, res) => {
     try {
         const month = req.query.month || new Date().toISOString().slice(0, 7);
-        const dateRegex = new RegExp(`^${month}`);
+        
+        // Validate month format
+        const validatedMonth = validateMonthString(month);
+        if (!validatedMonth) {
+            return res.status(400).json({ success: false, error: 'Invalid month format. Use YYYY-MM' });
+        }
 
         const breakdown = await Expense.aggregate([
-            { $match: { date: { $regex: dateRegex } } },
+            { 
+                $match: { 
+                    date: { 
+                        $gte: validatedMonth + '-01',
+                        $lt: validatedMonth + '-32'
+                    } 
+                } 
+            },
             { $group: { _id: '$category', total: { $sum: '$amount' } } },
             { $sort: { total: -1 } },
         ]);
 
-        res.json({ success: true, month, breakdown });
+        res.json({ success: true, month: validatedMonth, breakdown });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
     }
@@ -56,24 +79,37 @@ exports.getCategoryBreakdown = async (req, res) => {
 // @route   GET /api/analytics/cost-per-plate-trend
 exports.getCostPerPlateTrend = async (req, res) => {
     try {
-        const months = parseInt(req.query.months) || 6;
+        const months = validatePositiveInteger(req.query.months, 6);
+        if (months > 60) {
+            return res.status(400).json({ success: false, error: 'Maximum 60 months allowed' });
+        }
+        
         const results = [];
 
         for (let i = months - 1; i >= 0; i--) {
             const d = new Date();
             d.setMonth(d.getMonth() - i);
             const month = d.toISOString().slice(0, 7);
-            const dateRegex = new RegExp(`^${month}`);
 
             const expenseAgg = await Expense.aggregate([
-                { $match: { date: { $regex: dateRegex } } },
+                { 
+                    $match: { 
+                        date: { 
+                            $gte: month + '-01',
+                            $lt: month + '-32'
+                        } 
+                    } 
+                },
                 { $group: { _id: null, total: { $sum: '$amount' } } },
             ]);
 
             const totalExpense = expenseAgg.length > 0 ? expenseAgg[0].total : 0;
 
             const mealsServed = await MealAttendance.countDocuments({
-                date: { $regex: dateRegex },
+                date: {
+                    $gte: month + '-01',
+                    $lt: month + '-32'
+                },
                 present: true,
             });
 

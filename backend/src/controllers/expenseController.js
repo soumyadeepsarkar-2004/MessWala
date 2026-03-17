@@ -1,5 +1,6 @@
 const Expense = require('../models/Expense');
 const MealAttendance = require('../models/MealAttendance');
+const { validateDateString, validateMonthString, validateCategory } = require('../utils/validation');
 
 // @desc    Add an expense
 // @route   POST /api/expenses
@@ -30,13 +31,27 @@ exports.getExpenses = async (req, res) => {
         const filter = {};
 
         if (start && end) {
-            filter.date = { $gte: start, $lte: end };
+            const validatedStart = validateDateString(start);
+            const validatedEnd = validateDateString(end);
+            
+            if (!validatedStart || !validatedEnd) {
+                return res.status(400).json({ success: false, error: 'Invalid date format. Use YYYY-MM-DD' });
+            }
+            
+            filter.date = { $gte: validatedStart, $lte: validatedEnd };
         } else if (start) {
-            filter.date = { $gte: start };
+            const validatedStart = validateDateString(start);
+            if (!validatedStart) {
+                return res.status(400).json({ success: false, error: 'Invalid date format. Use YYYY-MM-DD' });
+            }
+            filter.date = { $gte: validatedStart };
         }
 
         if (category) {
-            filter.category = category;
+            const validatedCategory = validateCategory(category);
+            if (validatedCategory) {
+                filter.category = validatedCategory;
+            }
         }
 
         const expenses = await Expense.find(filter)
@@ -54,10 +69,23 @@ exports.getExpenses = async (req, res) => {
 exports.getMonthlySummary = async (req, res) => {
     try {
         const month = req.query.month || new Date().toISOString().slice(0, 7);
-        const dateRegex = new RegExp(`^${month}`);
+        
+        // Validate month format (YYYY-MM)
+        const validatedMonth = validateMonthString(month);
+        if (!validatedMonth) {
+            return res.status(400).json({ success: false, error: 'Invalid month format. Use YYYY-MM' });
+        }
 
+        // Use exact prefix match instead of regex to prevent injection
         const summary = await Expense.aggregate([
-            { $match: { date: { $regex: dateRegex } } },
+            { 
+                $match: { 
+                    date: { 
+                        $gte: validatedMonth + '-01',
+                        $lt: validatedMonth + '-32' // This will naturally exclude dates beyond valid month
+                    }
+                } 
+            },
             {
                 $group: {
                     _id: '$category',
@@ -70,7 +98,7 @@ exports.getMonthlySummary = async (req, res) => {
 
         const totalExpense = summary.reduce((acc, s) => acc + s.total, 0);
 
-        res.json({ success: true, month, totalExpense, breakdown: summary });
+        res.json({ success: true, month: validatedMonth, totalExpense, breakdown: summary });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
     }
@@ -81,11 +109,23 @@ exports.getMonthlySummary = async (req, res) => {
 exports.getCostPerPlate = async (req, res) => {
     try {
         const month = req.query.month || new Date().toISOString().slice(0, 7);
-        const dateRegex = new RegExp(`^${month}`);
+        
+        // Validate month format (YYYY-MM)
+        const validatedMonth = validateMonthString(month);
+        if (!validatedMonth) {
+            return res.status(400).json({ success: false, error: 'Invalid month format. Use YYYY-MM' });
+        }
 
-        // Total expenses for the month
+        // Total expenses for the month (use string comparison instead of regex)
         const expenseAgg = await Expense.aggregate([
-            { $match: { date: { $regex: dateRegex } } },
+            { 
+                $match: { 
+                    date: { 
+                        $gte: validatedMonth + '-01',
+                        $lt: validatedMonth + '-32'
+                    }
+                } 
+            },
             { $group: { _id: null, total: { $sum: '$amount' } } },
         ]);
 
@@ -93,7 +133,10 @@ exports.getCostPerPlate = async (req, res) => {
 
         // Total meals served (present = true)
         const mealsServed = await MealAttendance.countDocuments({
-            date: { $regex: dateRegex },
+            date: { 
+                $gte: validatedMonth + '-01',
+                $lt: validatedMonth + '-32'
+            },
             present: true,
         });
 
@@ -101,7 +144,7 @@ exports.getCostPerPlate = async (req, res) => {
 
         res.json({
             success: true,
-            month,
+            month: validatedMonth,
             totalExpense,
             mealsServed,
             costPerPlate: Number(costPerPlate),
@@ -116,9 +159,19 @@ exports.getCostPerPlate = async (req, res) => {
 exports.exportCSV = async (req, res) => {
     try {
         const month = req.query.month || new Date().toISOString().slice(0, 7);
-        const dateRegex = new RegExp(`^${month}`);
+        
+        // Validate month format (YYYY-MM)
+        const validatedMonth = validateMonthString(month);
+        if (!validatedMonth) {
+            return res.status(400).json({ success: false, error: 'Invalid month format. Use YYYY-MM' });
+        }
 
-        const expenses = await Expense.find({ date: { $regex: dateRegex } })
+        const expenses = await Expense.find({ 
+            date: { 
+                $gte: validatedMonth + '-01',
+                $lt: validatedMonth + '-32'
+            }
+        })
             .populate('addedBy', 'name')
             .sort({ date: 1 });
 
@@ -135,7 +188,7 @@ exports.exportCSV = async (req, res) => {
         csvRows.push(`\nTotal,,${totalExpense},,`);
 
         res.setHeader('Content-Type', 'text/csv');
-        res.setHeader('Content-Disposition', `attachment; filename=expenses_${month}.csv`);
+        res.setHeader('Content-Disposition', `attachment; filename=expenses_${validatedMonth}.csv`);
         res.send(csvRows.join('\n'));
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
