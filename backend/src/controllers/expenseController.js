@@ -33,11 +33,11 @@ exports.getExpenses = async (req, res) => {
         if (start && end) {
             const validatedStart = validateDateString(start);
             const validatedEnd = validateDateString(end);
-            
+
             if (!validatedStart || !validatedEnd) {
                 return res.status(400).json({ success: false, error: 'Invalid date format. Use YYYY-MM-DD' });
             }
-            
+
             filter.date = { $gte: validatedStart, $lte: validatedEnd };
         } else if (start) {
             const validatedStart = validateDateString(start);
@@ -69,7 +69,7 @@ exports.getExpenses = async (req, res) => {
 exports.getMonthlySummary = async (req, res) => {
     try {
         const month = req.query.month || new Date().toISOString().slice(0, 7);
-        
+
         // Validate month format (YYYY-MM)
         const validatedMonth = validateMonthString(month);
         if (!validatedMonth) {
@@ -78,13 +78,13 @@ exports.getMonthlySummary = async (req, res) => {
 
         // Use exact prefix match instead of regex to prevent injection
         const summary = await Expense.aggregate([
-            { 
-                $match: { 
-                    date: { 
+            {
+                $match: {
+                    date: {
                         $gte: validatedMonth + '-01',
                         $lt: validatedMonth + '-32' // This will naturally exclude dates beyond valid month
                     }
-                } 
+                }
             },
             {
                 $group: {
@@ -109,7 +109,7 @@ exports.getMonthlySummary = async (req, res) => {
 exports.getCostPerPlate = async (req, res) => {
     try {
         const month = req.query.month || new Date().toISOString().slice(0, 7);
-        
+
         // Validate month format (YYYY-MM)
         const validatedMonth = validateMonthString(month);
         if (!validatedMonth) {
@@ -118,13 +118,13 @@ exports.getCostPerPlate = async (req, res) => {
 
         // Total expenses for the month (use string comparison instead of regex)
         const expenseAgg = await Expense.aggregate([
-            { 
-                $match: { 
-                    date: { 
+            {
+                $match: {
+                    date: {
                         $gte: validatedMonth + '-01',
                         $lt: validatedMonth + '-32'
                     }
-                } 
+                }
             },
             { $group: { _id: null, total: { $sum: '$amount' } } },
         ]);
@@ -133,7 +133,7 @@ exports.getCostPerPlate = async (req, res) => {
 
         // Total meals served (present = true)
         const mealsServed = await MealAttendance.countDocuments({
-            date: { 
+            date: {
                 $gte: validatedMonth + '-01',
                 $lt: validatedMonth + '-32'
             },
@@ -159,15 +159,15 @@ exports.getCostPerPlate = async (req, res) => {
 exports.exportCSV = async (req, res) => {
     try {
         const month = req.query.month || new Date().toISOString().slice(0, 7);
-        
+
         // Validate month format (YYYY-MM)
         const validatedMonth = validateMonthString(month);
         if (!validatedMonth) {
             return res.status(400).json({ success: false, error: 'Invalid month format. Use YYYY-MM' });
         }
 
-        const expenses = await Expense.find({ 
-            date: { 
+        const expenses = await Expense.find({
+            date: {
                 $gte: validatedMonth + '-01',
                 $lt: validatedMonth + '-32'
             }

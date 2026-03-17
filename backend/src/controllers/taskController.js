@@ -42,7 +42,7 @@ exports.getTasks = async (req, res) => {
         // Validate sort field
         const validSortFields = ['dueDate', 'priority', 'createdAt'];
         const sortField = validSortFields.includes(sort) ? sort : 'createdAt';
-        
+
         // Validate sort order
         const validSortOrder = validateSortOrder(order);
         const sortOrder = validSortOrder === 'asc' || validSortOrder === '1' ? 1 : -1;

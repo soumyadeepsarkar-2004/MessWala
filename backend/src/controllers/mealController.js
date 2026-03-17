@@ -26,7 +26,7 @@ exports.markAttendance = async (req, res) => {
 exports.getDailyHeadcount = async (req, res) => {
     try {
         const date = req.query.date || new Date().toISOString().split('T')[0];
-        
+
         // Validate date format
         const validatedDate = validateDateString(date);
         if (!validatedDate) {
@@ -54,7 +54,7 @@ exports.getDailyHeadcount = async (req, res) => {
 exports.getAttendanceHistory = async (req, res) => {
     try {
         const month = req.query.month || new Date().toISOString().slice(0, 7);
-        
+
         // Validate month format
         const validatedMonth = validateMonthString(month);
         if (!validatedMonth) {

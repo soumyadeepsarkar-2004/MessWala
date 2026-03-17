@@ -12,7 +12,7 @@ exports.getExpenseTrend = async (req, res) => {
         if (months > 60) {
             return res.status(400).json({ success: false, error: 'Maximum 60 months allowed' });
         }
-        
+
         const results = [];
 
         for (let i = months - 1; i >= 0; i--) {
@@ -21,13 +21,13 @@ exports.getExpenseTrend = async (req, res) => {
             const month = d.toISOString().slice(0, 7);
 
             const agg = await Expense.aggregate([
-                { 
-                    $match: { 
-                        date: { 
+                {
+                    $match: {
+                        date: {
                             $gte: month + '-01',
                             $lt: month + '-32'
-                        } 
-                    } 
+                        }
+                    }
                 },
                 { $group: { _id: null, total: { $sum: '$amount' } } },
             ]);
@@ -49,7 +49,7 @@ exports.getExpenseTrend = async (req, res) => {
 exports.getCategoryBreakdown = async (req, res) => {
     try {
         const month = req.query.month || new Date().toISOString().slice(0, 7);
-        
+
         // Validate month format
         const validatedMonth = validateMonthString(month);
         if (!validatedMonth) {
@@ -57,13 +57,13 @@ exports.getCategoryBreakdown = async (req, res) => {
         }
 
         const breakdown = await Expense.aggregate([
-            { 
-                $match: { 
-                    date: { 
+            {
+                $match: {
+                    date: {
                         $gte: validatedMonth + '-01',
                         $lt: validatedMonth + '-32'
-                    } 
-                } 
+                    }
+                }
             },
             { $group: { _id: '$category', total: { $sum: '$amount' } } },
             { $sort: { total: -1 } },
@@ -83,7 +83,7 @@ exports.getCostPerPlateTrend = async (req, res) => {
         if (months > 60) {
             return res.status(400).json({ success: false, error: 'Maximum 60 months allowed' });
         }
-        
+
         const results = [];
 
         for (let i = months - 1; i >= 0; i--) {
@@ -92,13 +92,13 @@ exports.getCostPerPlateTrend = async (req, res) => {
             const month = d.toISOString().slice(0, 7);
 
             const expenseAgg = await Expense.aggregate([
-                { 
-                    $match: { 
-                        date: { 
+                {
+                    $match: {
+                        date: {
                             $gte: month + '-01',
                             $lt: month + '-32'
-                        } 
-                    } 
+                        }
+                    }
                 },
                 { $group: { _id: null, total: { $sum: '$amount' } } },
             ]);

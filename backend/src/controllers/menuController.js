@@ -7,7 +7,7 @@ exports.setMenu = async (req, res) => {
     try {
         const { date, breakfast, lunch, dinner } = req.body;
         const today = new Date().toISOString().split('T')[0];
-        
+
         // Validate date input - reject invalid dates
         let menuDate = today;
         if (date) {
@@ -62,11 +62,11 @@ exports.getMenu = async (req, res) => {
             // Validate both dates - return error if invalid
             const validatedStart = validateDateString(start);
             const validatedEnd = validateDateString(end);
-            
+
             if (!validatedStart || !validatedEnd) {
                 return res.status(400).json({ success: false, error: 'Invalid date format. Use YYYY-MM-DD' });
             }
-            
+
             filter.date = { $gte: validatedStart, $lte: validatedEnd };
         } else {
             // Default: current week

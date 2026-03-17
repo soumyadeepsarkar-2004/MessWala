@@ -26,7 +26,7 @@ exports.submitFeedback = async (req, res) => {
 exports.getFeedback = async (req, res) => {
     try {
         const date = req.query.date || new Date().toISOString().split('T')[0];
-        
+
         // Validate date format
         const validatedDate = validateDateString(date);
         if (!validatedDate) {
@@ -61,7 +61,7 @@ exports.getWeeklyRatings = async (req, res) => {
         if (weeks > 52) {
             return res.status(400).json({ success: false, error: 'Maximum 52 weeks allowed' });
         }
-        
+
         const daysBack = weeks * 7;
         const startDate = new Date();
         startDate.setDate(startDate.getDate() - daysBack);
