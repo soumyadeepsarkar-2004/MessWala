@@ -1,22 +1,29 @@
 import { useState, useEffect } from 'react';
+import { useConfig } from '../context/ConfigContext';
 import api from '../services/api';
 import toast from 'react-hot-toast';
 import { HiOutlineCheck, HiOutlineX } from 'react-icons/hi';
 
-const mealConfig = [
-    { type: 'breakfast', emoji: '🌅', label: 'Breakfast', time: '7:30 - 9:00 AM', color: 'from-amber-400 to-orange-500' },
-    { type: 'lunch', emoji: '☀️', label: 'Lunch', time: '12:30 - 2:00 PM', color: 'from-emerald-400 to-teal-500' },
-    { type: 'dinner', emoji: '🌙', label: 'Dinner', time: '7:30 - 9:00 PM', color: 'from-indigo-400 to-purple-500' },
-];
-
 export default function AttendancePage() {
-    const [attendance, setAttendance] = useState({ breakfast: null, lunch: null, dinner: null });
+    const { config } = useConfig();
+    const [attendance, setAttendance] = useState({});
     const [history, setHistory] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         fetchData();
     }, []);
+
+    useEffect(() => {
+        // Initialize attendance object with meal types from config
+        if (config?.mealTimes?.length > 0) {
+            const init = {};
+            config.mealTimes.forEach(meal => {
+                init[meal.type] = null;
+            });
+            setAttendance(init);
+        }
+    }, [config]);
 
     const fetchData = async () => {
         try {
@@ -75,7 +82,7 @@ export default function AttendancePage() {
 
             {/* Meal toggle cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-                {mealConfig.map((meal, i) => {
+                {config?.mealTimes?.map((meal, i) => {
                     const isPresent = attendance[meal.type] === true;
                     const isSkipped = attendance[meal.type] === false;
 
@@ -85,12 +92,12 @@ export default function AttendancePage() {
                             className="glass-card-solid overflow-hidden animate-slide-up"
                             style={{ animationDelay: `${i * 100}ms` }}
                         >
-                            <div className={`h-2 bg-gradient-to-r ${meal.color}`} />
+                            <div className={`h-2 bg-gradient-to-r ${meal.color || 'from-primary-400 to-primary-500'}`} />
                             <div className="p-6">
                                 <div className="text-center mb-6">
                                     <span className="text-4xl block mb-2">{meal.emoji}</span>
                                     <h3 className="text-xl font-bold text-gray-900 dark:text-white">{meal.label}</h3>
-                                    <p className="text-sm text-gray-400 dark:text-gray-500">{meal.time}</p>
+                                    <p className="text-sm text-gray-400 dark:text-gray-500">{meal.startTime} - {meal.endTime}</p>
                                 </div>
 
                                 <div className="flex gap-3">

@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useConfig } from '../context/ConfigContext';
 import api from '../services/api';
 import toast from 'react-hot-toast';
 import { HiOutlineCalendar, HiOutlinePencil } from 'react-icons/hi';
 
-const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-
 export default function MenuPage() {
     const { isRole } = useAuth();
+    const { config } = useConfig();
     const [todayMenu, setTodayMenu] = useState(null);
     const [weeklyMenu, setWeeklyMenu] = useState([]);
     const [editing, setEditing] = useState(false);
@@ -56,7 +56,9 @@ export default function MenuPage() {
         setEditing(true);
     };
 
-    const mealEmoji = { breakfast: '🌅', lunch: '☀️', dinner: '🌙' };
+    const getMealEmoji = (mealType) => {
+        return config?.mealTimes?.find(m => m.type === mealType)?.emoji || '🍽️';
+    };
 
     if (loading) {
         return (
@@ -98,17 +100,17 @@ export default function MenuPage() {
                                 id="menu-date"
                             />
                         </div>
-                        {['breakfast', 'lunch', 'dinner'].map((meal) => (
-                            <div key={meal}>
+                        {config?.mealTimes?.map((meal) => (
+                            <div key={meal.type}>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                                    {mealEmoji[meal]} {meal.charAt(0).toUpperCase() + meal.slice(1)}
+                                    {meal.emoji} {meal.label}
                                 </label>
                                 <input
-                                    value={form[meal]}
-                                    onChange={(e) => setForm({ ...form, [meal]: e.target.value })}
-                                    placeholder={`Enter ${meal} menu...`}
+                                    value={form[meal.type] || ''}
+                                    onChange={(e) => setForm({ ...form, [meal.type]: e.target.value })}
+                                    placeholder={`Enter ${meal.label.toLowerCase()} menu...`}
                                     className="input-field"
-                                    id={`menu-${meal}`}
+                                    id={`menu-${meal.type}`}
                                 />
                             </div>
                         ))}

@@ -1,28 +1,27 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useConfig } from '../context/ConfigContext';
 import api from '../services/api';
 import toast from 'react-hot-toast';
 import { HiOutlinePlus, HiOutlineTrash, HiOutlineDownload, HiOutlineCurrencyRupee } from 'react-icons/hi';
 
-const CATEGORIES = [
-    { value: 'vegetables', label: '🥬 Vegetables', color: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300' },
-    { value: 'rice', label: '🍚 Rice & Flour', color: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300' },
-    { value: 'gas', label: '🔥 Gas', color: 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300' },
-    { value: 'salary', label: '👨‍🍳 Salary', color: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' },
-    { value: 'dairy', label: '🥛 Dairy', color: 'bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-300' },
-    { value: 'spices', label: '🌶️ Spices', color: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300' },
-    { value: 'misc', label: '📦 Misc', color: 'bg-gray-100 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300' },
-];
-
 export default function ExpensesPage() {
     const { isRole } = useAuth();
+    const { config } = useConfig();
     const [expenses, setExpenses] = useState([]);
     const [summary, setSummary] = useState(null);
     const [costPerPlate, setCostPerPlate] = useState(null);
     const [showForm, setShowForm] = useState(false);
-    const [form, setForm] = useState({ category: 'vegetables', amount: '', description: '', date: new Date().toISOString().split('T')[0] });
+    const [form, setForm] = useState({ category: '', amount: '', description: '', date: new Date().toISOString().split('T')[0] });
     const [loading, setLoading] = useState(true);
     const canManage = isRole('treasurer', 'admin');
+
+    // Initialize form category when config loads
+    useEffect(() => {
+        if (config?.expenseCategories?.length > 0) {
+            setForm(f => ({ ...f, category: config.expenseCategories[0].value }));
+        }
+    }, [config]);
 
     useEffect(() => {
         fetchData();
@@ -87,7 +86,23 @@ export default function ExpensesPage() {
         }
     };
 
-    const getCategoryInfo = (cat) => CATEGORIES.find((c) => c.value === cat) || CATEGORIES[6];
+    const getCategoryInfo = (cat) => {
+        const found = config?.expenseCategories?.find((c) => c.value === cat);
+        if (found) {
+            // Add default colors based on category value if not in config
+            const colors = {
+                vegetables: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300',
+                rice: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300',
+                gas: 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300',
+                salary: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300',
+                dairy: 'bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-300',
+                spices: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300',
+                misc: 'bg-gray-100 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300',
+            };
+            return { ...found, color: found.color || colors[found.value] || 'bg-gray-100' };
+        }
+        return config?.expenseCategories?.[config.expenseCategories.length - 1] || { label: 'Other', value: 'misc' };
+    };
 
     if (loading) {
         return (
@@ -147,7 +162,7 @@ export default function ExpensesPage() {
                     <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">New Expense</h3>
                     <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="input-field" id="expense-category">
-                            {CATEGORIES.map((c) => (
+                            {config?.expenseCategories?.map((c) => (
                                 <option key={c.value} value={c.value}>{c.label}</option>
                             ))}
                         </select>
