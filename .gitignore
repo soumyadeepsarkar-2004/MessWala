@@ -13,6 +13,11 @@ yarn-error.log*
 # build
 dist/
 build/
+coverage/
+
+# test
+.nyc_output
+*.lcov
 
 # IDE
 .vscode/
