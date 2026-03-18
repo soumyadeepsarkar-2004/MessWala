@@ -13,8 +13,8 @@ const {
 const { protect, requireApproval } = require('../middleware/authMiddleware');
 
 const analyticsLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, 
-  max: 100, 
+  windowMs: 15 * 60 * 1000,
+  max: 100,
   message: { success: false, error: 'Too many requests, please try again later' },
 });
 
