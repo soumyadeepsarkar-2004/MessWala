@@ -8,6 +8,11 @@ on:
     types: [completed]
     branches: [main]
 
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
 jobs:
   deploy-backend:
     name: Deploy Backend to Render

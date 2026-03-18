@@ -132,15 +132,27 @@ exports.getCostPerPlateTrend = async (req, res) => {
 exports.getWastageEstimate = async (req, res) => {
   try {
     const month = req.query.month || new Date().toISOString().slice(0, 7);
-    const dateRegex = new RegExp(`^${month}`);
+
+    // Validate month format (YYYY-MM)
+    const validatedMonth = validateMonthString(month || '');
+    if (!validatedMonth) {
+      return res.status(400).json({ success: false, error: 'Invalid month format. Use YYYY-MM' });
+    }
 
     // Total attendance records (present + absent)
+    // Use string range comparison instead of regex to prevent NoSQL injection and ReDoS
     const totalRecords = await MealAttendance.countDocuments({
-      date: { $regex: dateRegex },
+      date: {
+        $gte: validatedMonth + '-01',
+        $lt: validatedMonth + '-32',
+      },
     });
 
     const presentCount = await MealAttendance.countDocuments({
-      date: { $regex: dateRegex },
+      date: {
+        $gte: validatedMonth + '-01',
+        $lt: validatedMonth + '-32',
+      },
       present: true,
     });
 

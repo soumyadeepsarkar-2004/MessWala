@@ -165,10 +165,14 @@ exports.completeProfile = async (req, res) => {
 
     // Validate collegeId and roomNumber are non-empty strings
     if (typeof collegeId !== 'string' || collegeId.trim().length === 0) {
-      return res.status(400).json({ success: false, error: 'College ID must be a non-empty string' });
+      return res
+        .status(400)
+        .json({ success: false, error: 'College ID must be a non-empty string' });
     }
     if (typeof roomNumber !== 'string' || roomNumber.trim().length === 0) {
-      return res.status(400).json({ success: false, error: 'Room Number must be a non-empty string' });
+      return res
+        .status(400)
+        .json({ success: false, error: 'Room Number must be a non-empty string' });
     }
 
     const user = await User.findById(req.user.id);
