@@ -108,7 +108,14 @@ function validateCategory(category, defaultValue = 'miscellaneous') {
   if (!category) {
     return defaultValue;
   }
-  const allowedCategories = ['food', 'utilities', 'maintenance', 'miscellaneous', 'groceries', 'other'];
+  const allowedCategories = [
+    'food',
+    'utilities',
+    'maintenance',
+    'miscellaneous',
+    'groceries',
+    'other',
+  ];
   return allowedCategories.includes(category.toLowerCase()) ? category : defaultValue;
 }
 

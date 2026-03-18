@@ -202,7 +202,8 @@ exports.exportCSV = async (req, res) => {
       'Date,Category,Amount,Description,Added By',
       ...expenses.map(
         (e) =>
-          `${e.date},${e.category},${e.amount},"${e.description || ''}",${e.addedBy?.name || 'Unknown'
+          `${e.date},${e.category},${e.amount},"${e.description || ''}",${
+            e.addedBy?.name || 'Unknown'
           }`,
       ),
     ];
