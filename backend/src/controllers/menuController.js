@@ -8,6 +8,22 @@ exports.setMenu = async (req, res) => {
     const { date, breakfast, lunch, dinner } = req.body;
     const today = new Date().toISOString().split('T')[0];
 
+    // Validate that at least one meal is provided
+    if (!breakfast && !lunch && !dinner) {
+      return res.status(400).json({ success: false, error: 'At least one meal must be provided' });
+    }
+
+    // Validate meal values (should be non-empty strings if provided)
+    if (breakfast && (typeof breakfast !== 'string' || breakfast.trim().length === 0)) {
+      return res.status(400).json({ success: false, error: 'Breakfast must be a non-empty string' });
+    }
+    if (lunch && (typeof lunch !== 'string' || lunch.trim().length === 0)) {
+      return res.status(400).json({ success: false, error: 'Lunch must be a non-empty string' });
+    }
+    if (dinner && (typeof dinner !== 'string' || dinner.trim().length === 0)) {
+      return res.status(400).json({ success: false, error: 'Dinner must be a non-empty string' });
+    }
+
     // Validate date input - reject invalid dates
     let menuDate = today;
     if (date) {
@@ -23,7 +39,12 @@ exports.setMenu = async (req, res) => {
 
     const menu = await Menu.findOneAndUpdate(
       { date: menuDate },
-      { breakfast, lunch, dinner, setBy: req.user.id },
+      {
+        breakfast: breakfast ? breakfast.trim() : null,
+        lunch: lunch ? lunch.trim() : null,
+        dinner: dinner ? dinner.trim() : null,
+        setBy: req.user.id,
+      },
       { upsert: true, new: true, runValidators: true },
     );
 

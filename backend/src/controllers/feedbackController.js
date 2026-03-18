@@ -1,6 +1,6 @@
 const Feedback = require('../models/Feedback');
 const Menu = require('../models/Menu');
-const { validateDateString, validatePositiveInteger } = require('../utils/validation');
+const { validateDateString, validatePositiveInteger, validateEnum } = require('../utils/validation');
 
 // @desc    Submit feedback for a meal
 // @route   POST /api/feedback
@@ -9,9 +9,25 @@ exports.submitFeedback = async (req, res) => {
     const { date, mealType, rating, comment, anonymous } = req.body;
     const feedbackDate = date || new Date().toISOString().split('T')[0];
 
+    // Validate mealType
+    if (!validateEnum(mealType, ['breakfast', 'lunch', 'dinner'])) {
+      return res.status(400).json({ success: false, error: 'Invalid meal type' });
+    }
+
+    // Validate date format
+    const validatedDate = validateDateString(feedbackDate);
+    if (!validatedDate) {
+      return res.status(400).json({ success: false, error: 'Invalid date format. Use YYYY-MM-DD' });
+    }
+
+    // Validate rating (1-5)
+    if (typeof rating !== 'number' || rating < 1 || rating > 5 || !Number.isInteger(rating)) {
+      return res.status(400).json({ success: false, error: 'Rating must be an integer between 1 and 5' });
+    }
+
     const feedback = await Feedback.findOneAndUpdate(
-      { userId: req.user.id, date: feedbackDate, mealType },
-      { rating, comment, anonymous: anonymous || false },
+      { userId: req.user.id, date: validatedDate, mealType },
+      { rating, comment: comment || '', anonymous: anonymous === true },
       { upsert: true, new: true, runValidators: true },
     );
 

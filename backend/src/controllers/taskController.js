@@ -7,10 +7,21 @@ exports.createTask = async (req, res) => {
   try {
     const { title, description, priority, dueDate, assignedTo } = req.body;
 
+    // Validate required field
+    if (!title || typeof title !== 'string' || title.trim().length === 0) {
+      return res.status(400).json({ success: false, error: 'Title is required and must be a non-empty string' });
+    }
+
+    // Validate priority if provided
+    const validPriority = priority ? validateEnum(priority, ['low', 'medium', 'high']) : null;
+    if (priority && !validPriority) {
+      return res.status(400).json({ success: false, error: 'Invalid priority. Must be low, medium, or high' });
+    }
+
     const task = await Task.create({
-      title,
+      title: title.trim(),
       description,
-      priority: priority || 'medium',
+      priority: validPriority || 'medium',
       dueDate: dueDate || null,
       assignedTo: assignedTo || null,
       createdBy: req.user.id,

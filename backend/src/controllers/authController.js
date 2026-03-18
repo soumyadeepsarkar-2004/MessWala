@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const { OAuth2Client } = require('google-auth-library');
 const User = require('../models/User');
 const { generateOTP, sendOTPEmail } = require('../utils/email');
+const { validateEmail, validatePhone } = require('../utils/validation');
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -49,6 +50,11 @@ exports.adminLogin = async (req, res) => {
     const { email, password } = req.body;
     if (!email || !password) {
       return res.status(400).json({ success: false, error: 'Email and password are required' });
+    }
+
+    // Validate email format
+    if (!validateEmail(email)) {
+      return res.status(400).json({ success: false, error: 'Invalid email format' });
     }
 
     const user = await User.findOne({ email }).select('+password');
@@ -152,16 +158,29 @@ exports.completeProfile = async (req, res) => {
         .json({ success: false, error: 'College ID, Room Number, and Phone are required' });
     }
 
+    // Validate phone format
+    if (!validatePhone(phone)) {
+      return res.status(400).json({ success: false, error: 'Invalid phone number format' });
+    }
+
+    // Validate collegeId and roomNumber are non-empty strings
+    if (typeof collegeId !== 'string' || collegeId.trim().length === 0) {
+      return res.status(400).json({ success: false, error: 'College ID must be a non-empty string' });
+    }
+    if (typeof roomNumber !== 'string' || roomNumber.trim().length === 0) {
+      return res.status(400).json({ success: false, error: 'Room Number must be a non-empty string' });
+    }
+
     const user = await User.findById(req.user.id);
     if (!user) {
       return res.status(404).json({ success: false, error: 'User not found' });
     }
 
-    user.collegeId = collegeId;
-    user.roomNumber = roomNumber;
+    user.collegeId = collegeId.trim();
+    user.roomNumber = roomNumber.trim();
     user.phone = phone;
     if (address) {
-      user.address = address;
+      user.address = address.trim();
     }
     if (dob) {
       user.dob = dob;
@@ -182,6 +201,11 @@ exports.forgotPassword = async (req, res) => {
     const { email } = req.body;
     if (!email) {
       return res.status(400).json({ success: false, error: 'Email is required' });
+    }
+
+    // Validate email format
+    if (!validateEmail(email)) {
+      return res.status(400).json({ success: false, error: 'Invalid email format' });
     }
 
     const user = await User.findOne({ email }).select('+otp +otpExpiry');

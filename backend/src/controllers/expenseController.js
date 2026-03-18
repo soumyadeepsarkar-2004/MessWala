@@ -11,12 +11,29 @@ const {
 exports.addExpense = async (req, res) => {
   try {
     const { category, amount, date, description } = req.body;
+
+    // Validate category
+    if (!validateCategory(category)) {
+      return res.status(400).json({ success: false, error: 'Invalid expense category' });
+    }
+
+    // Validate amount
+    if (typeof amount !== 'number' || amount <= 0) {
+      return res.status(400).json({ success: false, error: 'Amount must be a positive number' });
+    }
+
     const expenseDate = date || new Date().toISOString().split('T')[0];
+
+    // Validate date format
+    const validatedDate = validateDateString(expenseDate);
+    if (!validatedDate) {
+      return res.status(400).json({ success: false, error: 'Invalid date format. Use YYYY-MM-DD' });
+    }
 
     const expense = await Expense.create({
       category,
       amount,
-      date: expenseDate,
+      date: validatedDate,
       description,
       addedBy: req.user.id,
     });
