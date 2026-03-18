@@ -1,5 +1,5 @@
 const MealAttendance = require('../models/MealAttendance');
-const { validateDateString, validateMonthString, validateMealType, validateEnum } = require('../utils/validation');
+const { validateDateString, validateMonthString, validateEnum } = require('../utils/validation');
 const { linearRegression } = require('../utils/predictor');
 
 // @desc    Mark meal attendance
@@ -7,14 +7,14 @@ const { linearRegression } = require('../utils/predictor');
 exports.markAttendance = async (req, res) => {
   try {
     const { date, mealType, present } = req.body;
-    
+
     // Validate mealType
     if (!validateEnum(mealType, ['breakfast', 'lunch', 'dinner'])) {
       return res.status(400).json({ success: false, error: 'Invalid meal type' });
     }
 
     const mealDate = date || new Date().toISOString().split('T')[0];
-    
+
     // Validate date format
     const validatedDate = validateDateString(mealDate);
     if (!validatedDate) {
