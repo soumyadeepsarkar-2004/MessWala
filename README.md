@@ -103,17 +103,6 @@ Open http://localhost:5173 in your browser.
 3. **Invite Users** — Share the app link with students, managers, and treasurers
 4. **Approve Students** — Admins/Managers approve student registrations from the dashboard
 
-### Development Seed Data (Optional)
-
-For development/testing only, you can populate the database with sample data:
-
-```bash
-cd backend
-ALLOW_SEED=true npm run seed
-```
-
-> ⚠️ **Warning:** The seed script clears ALL existing data. Never run in production.
-
 ## 📁 Project Structure
 
 ```

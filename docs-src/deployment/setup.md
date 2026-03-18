@@ -204,26 +204,29 @@ Before starting, ensure you have:
 
 1. Go to Render → Environment
 2. Find `ALLOWED_ORIGINS`
-3. Add your Vercel URL:
+3. Update to only include your production URLs:
    ```
-   https://mess-walah.vercel.app,http://localhost:5173
+   https://your-frontend-domain.vercel.app
    ```
-4. Redeploy Render service
+4. Remove any localhost URLs (they should only be in development mode)
+5. Redeploy Render service
 
 ---
 
 ## Phase 5: Admin Setup
 
-### Step 1: Login as Admin
+### Step 1: Create Admin Account
 
 1. Navigate to your Vercel URL
-2. Login with admin credentials:
-   - Email: `admin@messwala.com`
-   - Password: (Set in Render environment or create new account)
+2. Click "Sign Up"
+3. Complete the registration form:
+   - The first user to sign up automatically becomes the admin
+   - Use a secure password (minimum 12 characters recommended)
+   - Save credentials in a secure location (password manager)
 
 ### Step 2: Configure Mess
 
-If first login, you'll see setup wizard:
+After login, you'll see setup wizard:
 
 1. **Mess Information**
    - Name (required)

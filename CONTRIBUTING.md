@@ -11,9 +11,13 @@ Thanks for your interest in contributing to MessWala! 🍛
    cd backend && npm install
    cd ../frontend && npm install
    ```
-4. Set up environment variables: `cp backend/.env.example backend/.env`
-5. Seed the database: `cd backend && npm run seed`
-6. Start development:
+4. Set up environment variables:
+   ```bash
+   cp backend/.env.example backend/.env
+   cp frontend/.env.example frontend/.env
+   # Edit both .env files with your credentials
+   ```
+5. Start development:
    ```bash
    # Terminal 1 - Backend
    cd backend && npm run dev
@@ -21,6 +25,8 @@ Thanks for your interest in contributing to MessWala! 🍛
    # Terminal 2 - Frontend
    cd frontend && npm run dev
    ```
+
+> **Note:** To populate development data, set `NODE_ENV=development` and run `ALLOW_SEED=true npm run seed` in the backend folder. This is for local development only.
 
 ## Development Guidelines
 

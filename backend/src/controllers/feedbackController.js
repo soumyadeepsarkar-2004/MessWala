@@ -1,10 +1,6 @@
 const Feedback = require('../models/Feedback');
 const Menu = require('../models/Menu');
-const {
-  validateDateString,
-  validatePositiveInteger,
-  validateEnum,
-} = require('../utils/validation');
+const { validateDateString, validatePositiveInteger, validateEnum } = require('../utils/validation');
 
 // @desc    Submit feedback for a meal
 // @route   POST /api/feedback
@@ -26,9 +22,7 @@ exports.submitFeedback = async (req, res) => {
 
     // Validate rating (1-5)
     if (typeof rating !== 'number' || rating < 1 || rating > 5 || !Number.isInteger(rating)) {
-      return res
-        .status(400)
-        .json({ success: false, error: 'Rating must be an integer between 1 and 5' });
+      return res.status(400).json({ success: false, error: 'Rating must be an integer between 1 and 5' });
     }
 
     const feedback = await Feedback.findOneAndUpdate(

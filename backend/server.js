@@ -17,17 +17,22 @@ const logger = getLogger('Server');
 const app = express();
 
 // CORS must be before helmet so preflight OPTIONS requests get proper headers
-const ALLOWED_ORIGINS = [
-  'https://mess-walah.vercel.app',
-  'http://localhost:5173',
-  'http://localhost:3000',
-];
-// Dynamically add Render URL if set
+const ALLOWED_ORIGINS = [];
+
+// Add frontend URL from environment (required in production)
+if (process.env.FRONTEND_URL) {
+  ALLOWED_ORIGINS.push(process.env.FRONTEND_URL);
+}
+
+// Add Render URL if set (for Render deployments)
 if (process.env.RENDER_EXTERNAL_URL) {
   ALLOWED_ORIGINS.push(process.env.RENDER_EXTERNAL_URL);
 }
-if (process.env.FRONTEND_URL) {
-  ALLOWED_ORIGINS.push(process.env.FRONTEND_URL);
+
+// Only add localhost in development mode
+if (process.env.NODE_ENV !== 'production') {
+  ALLOWED_ORIGINS.push('http://localhost:5173');
+  ALLOWED_ORIGINS.push('http://localhost:3000');
 }
 
 app.use(

@@ -9,13 +9,29 @@ const Feedback = require('../models/Feedback');
 const Task = require('../models/Task');
 
 /* eslint-disable no-console */
-console.log('🚨 WARNING: This seed script is for DEVELOPMENT ONLY');
-console.log('   It creates demo users and historical data.');
-console.log('   DO NOT RUN in production!');
-console.log('   Set ALLOW_SEED=true environment variable to proceed.\n');
+
+// ⚠️ CRITICAL SAFETY CHECK FOR PRODUCTION
+console.log('\n🚨 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+console.log('   SEED SCRIPT - DEVELOPMENT ONLY');
+console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 🚨\n');
+
+// Prevent accidental execution in production
+if (process.env.NODE_ENV === 'production') {
+  console.error('❌ ERROR: Cannot run seed script in production environment!');
+  console.error('   NODE_ENV is set to "production"');
+  console.error('   This script will DELETE ALL DATA.');
+  console.error('   If you absolutely need to seed production data, contact the administrator.\n');
+  process.exit(1);
+}
+
+console.log('⚠️  WARNING: This script is for DEVELOPMENT ONLY');
+console.log('   • It DELETE ALL existing data from the database');
+console.log('   • Creates demo users, meals, expenses, and feedback');
+console.log('   • Only works when NODE_ENV is NOT production\n');
 
 if (process.env.ALLOW_SEED !== 'true') {
-  console.log('⏭️  Skipping seed. To seed data, set ALLOW_SEED=true');
+  console.log('⏭️  Skipping seed. To execute, set: ALLOW_SEED=true npm run seed');
+  console.log('    Example: ALLOW_SEED=true node src/seed/seed.js\n');
   process.exit(0);
 }
 
@@ -404,7 +420,9 @@ async function seed() {
     console.log(`📋 Created ${taskData.length} tasks`);
 
     console.log('\n✨ Seed data complete!');
-    console.log('\nSee README.md for demo login credentials.');
+    console.log('\n⚠️  Created demo accounts for development testing.');
+    console.log('    Change passwords immediately before any deployment.');
+    console.log('    Remove all seed data before production deployment.\n');
 
     process.exit(0);
   } catch (err) {

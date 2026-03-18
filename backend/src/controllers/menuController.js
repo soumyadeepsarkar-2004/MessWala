@@ -15,9 +15,7 @@ exports.setMenu = async (req, res) => {
 
     // Validate meal values (should be non-empty strings if provided)
     if (breakfast && (typeof breakfast !== 'string' || breakfast.trim().length === 0)) {
-      return res
-        .status(400)
-        .json({ success: false, error: 'Breakfast must be a non-empty string' });
+      return res.status(400).json({ success: false, error: 'Breakfast must be a non-empty string' });
     }
     if (lunch && (typeof lunch !== 'string' || lunch.trim().length === 0)) {
       return res.status(400).json({ success: false, error: 'Lunch must be a non-empty string' });
