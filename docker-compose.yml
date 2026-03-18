@@ -30,7 +30,8 @@ services:
       # 🚨 PRODUCTION: Set NODE_ENV=production for security hardening
       NODE_ENV: ${NODE_ENV:-development}
       PORT: 5000
-      MONGODB_URI: ${MONGODB_URI:-mongodb://${MONGO_ROOT_USER:-admin}:${MONGO_ROOT_PASSWORD:-insecure-default}@mongodb:27017/messwala?authSource=admin}
+      MONGODB_URI: ${MONGODB_URI:-mongodb://admin:${MONGO_ROOT_PASSWORD}@mongodb:27017/messwala?authSource=admin}
+      # ⚠️ WARNING: MONGO_ROOT_PASSWORD must be set in environment, never in code
       # 🚨 PRODUCTION: Generate a cryptographically secure random string (min 32 chars)
       JWT_SECRET: ${JWT_SECRET:-dev-secret-change-in-production}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}

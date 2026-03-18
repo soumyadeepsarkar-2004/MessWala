@@ -223,8 +223,10 @@ From MongoDB Atlas automated backups:
 // - Connection strings will need update
 // - Application requires restart
 
-// Step 4: Update MONGO_URI in environment
-// MONGO_URI=mongodb+srv://user:pass@restored-cluster.mongodb.net/dbname
+// Step 4: Update MONGO_URI in environment (.env file)
+// Use your MongoDB Atlas connection string from Step 2
+// Set it via: export MONGO_URI="your-connection-string"
+// Or add to .env file
 
 // Step 5: Restart application
 npm run start

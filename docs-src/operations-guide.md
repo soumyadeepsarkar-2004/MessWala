@@ -80,13 +80,13 @@
 ```bash
 # Backend Environment Variables (DO NOT commit actual values)
 # Store sensitive values in .env.local or GitHub Secrets
+# Generated from environment configuration, never hardcoded
 NODE_ENV=production
 PORT=5000
-MONGO_URI=<your-mongodb-atlas-uri-here>
-JWT_SECRET=<your-secure-256-bit-secret-here>
-JWT_EXPIRE=30d
-GOOGLE_CLIENT_ID=<your-google-client-id-here>
-GOOGLE_CLIENT_SECRET=<your-google-client-secret-here>
+# MONGO_URI - Set from MongoDB Atlas dashboard
+# JWT_SECRET - Generate 32+ random characters
+# GOOGLE_CLIENT_ID - From Google OAuth Console
+# GOOGLE_CLIENT_SECRET - From Google OAuth Console
 FRONTEND_URL=https://mess-walah.vercel.app
 LOG_LEVEL=INFO
 BACKUP_ENABLED=true

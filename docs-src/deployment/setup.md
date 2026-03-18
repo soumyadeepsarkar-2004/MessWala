@@ -60,12 +60,15 @@ Before starting, ensure you have:
 1. Click "Databases" → "Connect"
 2. Choose "Drivers" (not Compass)
 3. Select "Node.js" and version "4.x or later"
-4. Copy connection string (example with placeholders):
+3. Copy connection string from MongoDB Atlas
+   Example format (with placeholders):
    ```
-   mongodb+srv://<cluster-host>/<database>?retryWrites=true&w=majority
+   mongodb+srv://<USERNAME>:<PASSWORD>@<CLUSTER>.mongodb.net/<DATABASE>?retryWrites=true&w=majority
    ```
-5. Add credentials only in environment variables (for example `MONGO_URI` in `.env`)
-6. **IMPORTANT:** Never commit credential-bearing URIs to git.
+5. Store in environment-only (`.env` file or platform secrets):
+   - DO NOT paste actual credentials in code
+   - Use: `MONGO_URI=<your-actual-connection-string>`
+6. **CRITICAL:** Never commit any credentials or connection strings to git
 
 ---
 
