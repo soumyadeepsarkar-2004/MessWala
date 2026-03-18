@@ -1,3 +1,11 @@
+## [1.1.3](https://github.com/soumyadeepsarkar-2004/MessWala/compare/v1.1.2...v1.1.3) (2026-03-18)
+
+
+### Bug Fixes
+
+* resolve CI failures in backend lint, frontend tests, and docs deploy ([2549282](https://github.com/soumyadeepsarkar-2004/MessWala/commit/25492822613bda3d262121676de8d4dd8567d328))
+* **security:** resolve CodeQL missing rate limiting and workflow permissions ([bacf8a8](https://github.com/soumyadeepsarkar-2004/MessWala/commit/bacf8a8d80e90caa2cd08f0fc2236097c3653e64))
+
 ## [1.1.2](https://github.com/soumyadeepsarkar-2004/MessWala/compare/v1.1.1...v1.1.2) (2026-03-18)
 
 
