@@ -78,20 +78,30 @@
 ### Environment Configuration
 
 ```bash
-# Backend Environment Variables
+# Backend Environment Variables (DO NOT commit actual values)
+# Store sensitive values in .env.local or GitHub Secrets
 NODE_ENV=production
 PORT=5000
-MONGO_URI=mongodb+srv://user:pass@cluster.mongodb.net/messwala
-JWT_SECRET=your-256-bit-jwt-secret
+MONGO_URI=<your-mongodb-atlas-uri-here>
+JWT_SECRET=<your-secure-256-bit-secret-here>
 JWT_EXPIRE=30d
-GOOGLE_CLIENT_ID=xxx
-GOOGLE_CLIENT_SECRET=xxx
+GOOGLE_CLIENT_ID=<your-google-client-id-here>
+GOOGLE_CLIENT_SECRET=<your-google-client-secret-here>
 FRONTEND_URL=https://mess-walah.vercel.app
 LOG_LEVEL=INFO
 BACKUP_ENABLED=true
 BACKUP_FREQUENCY=daily
 BACKUP_RETENTION=30
 ```
+
+### MongoDB Connection
+
+For MongoDB Atlas:
+1. Create a cluster at https://www.mongodb.com/cloud/atlas
+2. Create a database user with strong password
+3. Whitelist your IP addresses
+4. Get your connection string (MONGO_URI)
+5. Never commit credentials to version control
 
 ### Docker Deployment
 

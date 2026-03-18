@@ -49,7 +49,25 @@ app.use(
 // Security middleware
 app.use(
   helmet({
-    contentSecurityPolicy: false, // CSP handled by Vercel's vercel.json headers
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", 'https://cdn.jsdelivr.net', 'https://recharts.org'],
+        styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+        fontSrc: ["'self'", 'https://fonts.gstatic.com'],
+        imgSrc: ["'self'", 'data:', 'https:', 'http:'],
+        connectSrc: ["'self'", 'https://www.google.com', 'https://www.gstatic.com', process.env.FRONTEND_URL || ''],
+        frameSrc: ["'self'", 'https://www.google.com'],
+      },
+    },
+    hsts: {
+      maxAge: 31536000, // 1 year in seconds
+      includeSubDomains: true,
+      preload: true,
+    },
+    frameGuard: { action: 'deny' },
+    noSniff: true,
+    xssFilter: true,
   }),
 );
 
@@ -74,10 +92,10 @@ const authLimiter = rateLimit({
   message: { success: false, error: 'Too many attempts, please try again after 15 minutes' },
   store: process.env.MONGO_URI
     ? new MongoStore({
-        uri: process.env.MONGO_URI,
-        collectionName: 'rateLimits',
-        expireTimeMs: 15 * 60 * 1000,
-      })
+      uri: process.env.MONGO_URI,
+      collectionName: 'rateLimits',
+      expireTimeMs: 15 * 60 * 1000,
+    })
     : undefined, // falls back to in-memory for local dev without DB
 });
 
