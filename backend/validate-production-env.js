@@ -2,9 +2,9 @@
 
 /**
  * Production Environment Validator
- * 
+ *
  * Usage: node validate-production-env.js
- * 
+ *
  * This script validates that all required environment variables
  * are set for production deployment.
  */
@@ -68,7 +68,7 @@ function validateEnvironment() {
     console.log('\n🔐 Checking Environment Mode:\n');
     if (process.env.NODE_ENV !== 'production') {
         console.warn(
-            '⚠️  NODE_ENV is not "production" - some security features may be disabled'
+            '⚠️  NODE_ENV is not "production" - some security features may be disabled',
         );
         hasWarnings = true;
     } else {
