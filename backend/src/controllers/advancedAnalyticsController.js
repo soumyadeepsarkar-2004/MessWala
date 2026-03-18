@@ -14,6 +14,7 @@ const {
 const Expense = require('../models/Expense');
 const MealAttendance = require('../models/MealAttendance');
 const Feedback = require('../models/Feedback');
+const { validateDateString } = require('../utils/validation');
 
 /**
  * GET /api/advanced-analytics/meal-preferences
@@ -21,16 +22,17 @@ const Feedback = require('../models/Feedback');
  */
 async function getMealPreferences(req, res) {
   try {
-    const { startDate, endDate } = req.query;
+    const startDate = validateDateString(req.query.startDate, null);
+    const endDate = validateDateString(req.query.endDate, null);
 
     const query = {};
     if (startDate || endDate) {
       query.date = {};
       if (startDate) {
-        query.date.$gte = new Date(startDate);
+        query.date.$gte = startDate;
       }
       if (endDate) {
-        query.date.$lte = new Date(endDate);
+        query.date.$lte = endDate;
       }
     }
 
@@ -56,16 +58,17 @@ async function getMealPreferences(req, res) {
  */
 async function getExpenseTrends(req, res) {
   try {
-    const { startDate, endDate } = req.query;
+    const startDate = validateDateString(req.query.startDate, null);
+    const endDate = validateDateString(req.query.endDate, null);
 
     const query = {};
     if (startDate || endDate) {
       query.date = {};
       if (startDate) {
-        query.date.$gte = new Date(startDate);
+        query.date.$gte = startDate;
       }
       if (endDate) {
-        query.date.$lte = new Date(endDate);
+        query.date.$lte = endDate;
       }
     }
 
@@ -91,26 +94,28 @@ async function getExpenseTrends(req, res) {
  */
 async function getCostPredictions(req, res) {
   try {
-    const { daysAhead = 30, startDate, endDate } = req.query;
+    const daysAhead = parseInt(req.query.daysAhead) || 30;
+    const startDate = validateDateString(req.query.startDate, null);
+    const endDate = validateDateString(req.query.endDate, null);
 
     const query = {};
     if (startDate || endDate) {
       query.date = {};
       if (startDate) {
-        query.date.$gte = new Date(startDate);
+        query.date.$gte = startDate;
       }
       if (endDate) {
-        query.date.$lte = new Date(endDate);
+        query.date.$lte = endDate;
       }
     }
 
     const expenses = await Expense.find(query).sort({ date: 1 });
-    const predictions = predictMealCosts(expenses, parseInt(daysAhead));
+    const predictions = predictMealCosts(expenses, daysAhead);
 
     res.json({
       success: true,
       data: predictions,
-      daysAhead: parseInt(daysAhead),
+      daysAhead,
       generatedAt: new Date(),
     });
   } catch (error) {
@@ -127,16 +132,17 @@ async function getCostPredictions(req, res) {
  */
 async function getWastageAnalysis(req, res) {
   try {
-    const { startDate, endDate } = req.query;
+    const startDate = validateDateString(req.query.startDate, null);
+    const endDate = validateDateString(req.query.endDate, null);
 
     const query = {};
     if (startDate || endDate) {
       query.date = {};
       if (startDate) {
-        query.date.$gte = new Date(startDate);
+        query.date.$gte = startDate;
       }
       if (endDate) {
-        query.date.$lte = new Date(endDate);
+        query.date.$lte = endDate;
       }
     }
 
@@ -166,7 +172,8 @@ async function getWastageAnalysis(req, res) {
  */
 async function getSatisfactionAnalytics(req, res) {
   try {
-    const { startDate, endDate } = req.query;
+    const startDate = validateDateString(req.query.startDate, null);
+    const endDate = validateDateString(req.query.endDate, null);
 
     const query = {};
     if (startDate || endDate) {
@@ -201,23 +208,35 @@ async function getSatisfactionAnalytics(req, res) {
  */
 async function getComprehensiveAnalytics(req, res) {
   try {
-    const { startDate, endDate } = req.query;
+    const startDate = validateDateString(req.query.startDate, null);
+    const endDate = validateDateString(req.query.endDate, null);
 
     const query = {};
     if (startDate || endDate) {
       query.date = {};
       if (startDate) {
-        query.date.$gte = new Date(startDate);
+        query.date.$gte = startDate;
       }
       if (endDate) {
-        query.date.$lte = new Date(endDate);
+        query.date.$lte = endDate;
+      }
+    }
+
+    const feedbackQuery = {};
+    if (startDate || endDate) {
+      feedbackQuery.createdAt = {};
+      if (startDate) {
+        feedbackQuery.createdAt.$gte = new Date(startDate);
+      }
+      if (endDate) {
+        feedbackQuery.createdAt.$lte = new Date(endDate);
       }
     }
 
     const [expenses, attendances, feedback] = await Promise.all([
       Expense.find(query),
       MealAttendance.find(query),
-      Feedback.find({ createdAt: query.date || {} }),
+      Feedback.find(feedbackQuery),
     ]);
 
     const dashboard = {

@@ -241,6 +241,18 @@ async function getHostelStats(req, res) {
       });
     }
 
+    // Check authorization
+    if (
+      hostel.admin.toString() !== req.user._id.toString() &&
+      !hostel.coAdmins.some((id) => id.toString() === req.user._id.toString()) &&
+      req.user.role !== 'admin'
+    ) {
+      return res.status(403).json({
+        success: false,
+        error: 'Access denied',
+      });
+    }
+
     // Get member count
     const memberCount = await User.countDocuments({ hostel: req.params.id });
 
