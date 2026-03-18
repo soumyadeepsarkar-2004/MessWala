@@ -252,19 +252,19 @@ async function seed() {
               comment:
                 Math.random() > 0.5
                   ? randomItem([
-                      'Good food today!',
-                      'Could be better',
-                      'Loved the paneer!',
-                      'Too much oil',
-                      'Perfect spice level',
-                      'Need more variety',
-                      'Rice was undercooked',
-                      'Great dal today',
-                      'Missing salad',
-                      'Best biryani ever!',
-                      'Too salty',
-                      'Nice and fresh',
-                    ])
+                    'Good food today!',
+                    'Could be better',
+                    'Loved the paneer!',
+                    'Too much oil',
+                    'Perfect spice level',
+                    'Need more variety',
+                    'Rice was undercooked',
+                    'Great dal today',
+                    'Missing salad',
+                    'Best biryani ever!',
+                    'Too salty',
+                    'Nice and fresh',
+                  ])
                   : '',
               anonymous: Math.random() > 0.7,
             });
