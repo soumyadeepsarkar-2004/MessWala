@@ -5,21 +5,22 @@
 /**
  * Validate and sanitize date string (YYYY-MM-DD format)
  * @param {string} dateStr - Date string to validate
- * @returns {string|null} - Valid date string or null
+ * @param {string} defaultValue - Default value if invalid (defaults to today)
+ * @returns {string} - Valid date string or default
  */
-function validateDateString(dateStr) {
+function validateDateString(dateStr, defaultValue = null) {
   if (!dateStr) {
-    return null;
+    return defaultValue || new Date().toISOString().split('T')[0];
   }
   const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
   if (!dateRegex.test(dateStr)) {
-    return null;
+    return defaultValue || new Date().toISOString().split('T')[0];
   }
 
   // Verify it's a valid date
   const date = new Date(dateStr);
   if (isNaN(date.getTime())) {
-    return null;
+    return defaultValue || new Date().toISOString().split('T')[0];
   }
 
   return dateStr;
@@ -28,22 +29,23 @@ function validateDateString(dateStr) {
 /**
  * Validate and sanitize month string (YYYY-MM format)
  * @param {string} monthStr - Month string to validate
- * @returns {string|null} - Valid month string or null
+ * @param {string} defaultValue - Default value if invalid (defaults to current month)
+ * @returns {string} - Valid month string or default
  */
-function validateMonthString(monthStr) {
+function validateMonthString(monthStr, defaultValue = null) {
   if (!monthStr) {
-    return null;
+    return defaultValue || new Date().toISOString().slice(0, 7);
   }
   const monthRegex = /^\d{4}-\d{2}$/;
   if (!monthRegex.test(monthStr)) {
-    return null;
+    return defaultValue || new Date().toISOString().slice(0, 7);
   }
 
   // Verify it's a valid month
   const parts = monthStr.split('-');
   const month = parseInt(parts[1]);
   if (month < 1 || month > 12) {
-    return null;
+    return defaultValue || new Date().toISOString().slice(0, 7);
   }
 
   return monthStr;
@@ -57,7 +59,7 @@ function validateMonthString(monthStr) {
  */
 function validatePositiveInteger(value, defaultValue = 0) {
   const num = parseInt(value);
-  if (isNaN(num) || num < 0) {
+  if (isNaN(num) || num <= 0) {
     return defaultValue;
   }
   return num;
@@ -80,12 +82,18 @@ function validateEnum(value, allowedValues, defaultValue = null) {
 /**
  * Validate sort order
  * @param {string} order - Sort order (asc/desc)
- * @returns {string} - Valid sort order
+ * @returns {string} - Valid sort order ('asc' or 'desc')
  */
 function validateSortOrder(order) {
   const validOrders = ['asc', 'desc', 'ascending', 'descending', '1', '-1'];
   if (!validOrders.includes(String(order).toLowerCase())) {
-    return '1';
+    return 'asc';
+  }
+  if (order === '-1' || order === 'descending') {
+    return 'desc';
+  }
+  if (order === '1' || order === 'ascending') {
+    return 'asc';
   }
   return order;
 }
@@ -93,14 +101,43 @@ function validateSortOrder(order) {
 /**
  * Validate category from allowed list
  * @param {string} category - Category to validate
- * @returns {string|null} - Valid category or null
+ * @param {string} defaultValue - Default value if invalid (defaults to 'miscellaneous')
+ * @returns {string} - Valid category or default
  */
-function validateCategory(category) {
+function validateCategory(category, defaultValue = 'miscellaneous') {
   if (!category) {
-    return null;
+    return defaultValue;
   }
-  const allowedCategories = ['food', 'utilities', 'maintenance', 'miscellaneous', 'other'];
-  return allowedCategories.includes(category.toLowerCase()) ? category : null;
+  const allowedCategories = ['food', 'utilities', 'maintenance', 'miscellaneous', 'groceries', 'other'];
+  return allowedCategories.includes(category.toLowerCase()) ? category : defaultValue;
+}
+
+/**
+ * Validate email format
+ * @param {string} email - Email to validate
+ * @returns {boolean} - True if valid email format
+ */
+function validateEmail(email) {
+  if (!email || typeof email !== 'string') {
+    return false;
+  }
+  // Simple email validation regex
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email.toLowerCase());
+}
+
+/**
+ * Validate phone number
+ * @param {string} phone - Phone number to validate
+ * @returns {boolean} - True if valid phone format
+ */
+function validatePhone(phone) {
+  if (!phone || typeof phone !== 'string') {
+    return false;
+  }
+  // Accept 10+ digits, allowing common formats: +1-234-567-8900, (234) 567-8900, 2345678900
+  const phoneRegex = /^[+]?[(]?[0-9]{1,4}[)]?[-\s.]?[(]?[0-9]{1,4}[)]?[-\s.]?[0-9]{1,9}$/;
+  return phoneRegex.test(phone.replace(/\s/g, ''));
 }
 
 module.exports = {
@@ -110,4 +147,6 @@ module.exports = {
   validateEnum,
   validateSortOrder,
   validateCategory,
+  validateEmail,
+  validatePhone,
 };
