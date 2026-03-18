@@ -3,7 +3,6 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
-const MongoStore = require('rate-limit-mongo');
 require('dotenv').config();
 
 // Import enterprise utilities
@@ -90,13 +89,8 @@ const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 20, // limit each IP to 20 requests per window
   message: { success: false, error: 'Too many attempts, please try again after 15 minutes' },
-  store: process.env.MONGO_URI
-    ? new MongoStore({
-      uri: process.env.MONGO_URI,
-      collectionName: 'rateLimits',
-      expireTimeMs: 15 * 60 * 1000,
-    })
-    : undefined, // falls back to in-memory for local dev without DB
+  // Using default in-memory store. For production with multiple instances,
+  // consider using a Redis store with redis package instead of rate-limit-mongo
 });
 
 app.use('/api/auth/google', authLimiter);
