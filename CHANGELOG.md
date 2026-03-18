@@ -1,3 +1,15 @@
+# [1.1.0](https://github.com/soumyadeepsarkar-2004/MessWala/compare/v1.0.0...v1.1.0) (2026-03-18)
+
+
+### Bug Fixes
+
+* resolve linting and formatting issues across backend and frontend ([eba025b](https://github.com/soumyadeepsarkar-2004/MessWala/commit/eba025b0d53bb4bfe0f420249abe374a09862a12))
+
+
+### Features
+
+* enterprise-grade utilities, comprehensive testing, and infrastructure ([5b772dd](https://github.com/soumyadeepsarkar-2004/MessWala/commit/5b772dda84112d63392842eab26da32d92def3ce))
+
 # 1.0.0 (2026-03-18)
 
 
