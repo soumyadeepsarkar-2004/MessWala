@@ -53,9 +53,7 @@ export default function MenuPage() {
     setEditing(true);
   };
 
-  const getMealEmoji = (mealType) => {
-    return config?.mealTimes?.find((m) => m.type === mealType)?.emoji || '🍽️';
-  };
+  const mealEmoji = { breakfast: '🌅', lunch: '☀️', dinner: '🌙' };
 
   if (loading) {
     return (
