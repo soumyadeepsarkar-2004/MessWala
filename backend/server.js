@@ -6,6 +6,21 @@ const rateLimit = require('express-rate-limit');
 const MongoStore = require('rate-limit-mongo');
 require('dotenv').config();
 
+// Import enterprise utilities
+const { errorHandler, asyncHandler } = require('./src/utils/errors');
+const { requestLogger, errorLogger, getLogger } = require('./src/utils/logger');
+const { performanceMonitoringMiddleware, getHealthStatus } = require('./src/utils/performance');
+const { 
+  detectApiVersion,
+  checkVersionCompatibility
+} = require('./src/utils/versioning');
+const { 
+  initializeIndexes,
+  performanceMonitor
+} = require('./src/utils/database');
+const { backupManager, schedulePeriodicBackups } = require('./src/utils/backup');
+
+const logger = getLogger('Server');
 const app = express();
 
 // CORS must be before helmet so preflight OPTIONS requests get proper headers
@@ -42,7 +57,19 @@ app.use(helmet({
 
 app.use(express.json());
 
-// Rate limiting for auth routes - uses MongoDB store for persistence across restarts/serverless
+// ─── Enterprise Middleware Stack ───
+
+// Request logging
+app.use(requestLogger);
+
+// Performance monitoring
+app.use(performanceMonitoringMiddleware);
+
+// API versioning
+app.use(detectApiVersion);
+app.use(checkVersionCompatibility);
+
+// Rate limiting for auth routes
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 20, // limit each IP to 20 requests per window
@@ -73,18 +100,57 @@ const taskRoutes = require('./src/routes/taskRoutes');
 
 // Root health check
 app.get('/', (req, res) => {
-  res.json({ status: 'ok', service: 'MessWala API' });
+  res.json({ status: 'ok', service: 'MessWala API', version: 'v2' });
 });
 
-// Health check (before other routes so it always works)
+// Detailed health check
 app.get('/api/health', (req, res) => {
-  const dbState = mongoose.connection.readyState;
-  res.status(dbState === 1 ? 200 : 503).json({
-    status: dbState === 1 ? 'ok' : 'db_unavailable',
-    dbState,
-    timestamp: new Date().toISOString(),
+  res.json(getHealthStatus());
+});
+
+// Metrics endpoint (monitoring)
+app.get('/api/metrics', (req, res) => {
+  res.json({
+    uptime: process.uptime(),
+    memory: process.memoryUsage(),
+    performance: performanceMonitor.getMetrics(),
   });
 });
+
+// API documentation endpoint
+app.get('/api/version', (req, res) => {
+  res.json({
+    apiVersion: req.apiVersion,
+    config: req.apiVersionConfig,
+  });
+});
+
+// Backup management endpoints (admin only)
+app.post('/api/admin/backup', asyncHandler(async (req, res) => {
+  const backup = await backupManager.createFullBackup();
+  res.json({
+    success: true,
+    message: 'Backup created successfully',
+    data: backup,
+  });
+}));
+
+app.get('/api/admin/backups', asyncHandler(async (req, res) => {
+  const backups = backupManager.listBackups();
+  res.json({
+    success: true,
+    data: backups,
+  });
+}));
+
+app.post('/api/admin/restore/:timestamp', asyncHandler(async (req, res) => {
+  const result = await backupManager.restoreFromBackup(req.params.timestamp);
+  res.json({
+    success: true,
+    message: 'Restore completed',
+    data: result,
+  });
+}));
 
 // Mount routes
 app.use('/api/auth', authRoutes);
@@ -95,32 +161,38 @@ app.use('/api/menu', menuRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/tasks', taskRoutes);
 
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(err.statusCode || 500).json({
+// Error handling middleware (must come after all other middleware)
+app.use(errorLogger);
+app.use(errorHandler);
+
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({
     success: false,
-    error: err.message || 'Server Error',
+    error: 'Endpoint not found',
+    errorCode: 'NOT_FOUND',
+    path: req.path,
+    method: req.method,
   });
 });
 
 // Connect to MongoDB and start server
 const PORT = process.env.PORT || 5000;
 
-console.log('--- Server Startup ---');
-console.log(`Time: ${new Date().toISOString()}`);
-console.log(`Port Configured: ${PORT}`);
-console.log(`NODE_ENV: ${process.env.NODE_ENV || 'not set (defaults to development)'}`);
-console.log(`MONGO_URI Configured: ${process.env.MONGO_URI ? 'YES (Env Var)' : 'NO - FATAL ERROR'}`);
-console.log(`JWT_SECRET Configured: ${process.env.JWT_SECRET ? 'YES' : 'NO - FATAL ERROR (login will fail)'}`);
+logger.info('Server startup initiated', {
+  port: PORT,
+  nodeEnv: process.env.NODE_ENV || 'development',
+  mongoConfigured: !!process.env.MONGO_URI,
+  jwtConfigured: !!process.env.JWT_SECRET,
+});
 
 if (!process.env.MONGO_URI) {
-  console.error('FATAL: MONGO_URI environment variable is missing.');
+  logger.error('FATAL: MONGO_URI environment variable is missing');
   if (!process.env.VERCEL) process.exit(1);
 }
 
 if (!process.env.JWT_SECRET) {
-  console.error('FATAL: JWT_SECRET environment variable is missing.');
+  logger.error('FATAL: JWT_SECRET environment variable is missing');
   if (!process.env.VERCEL) process.exit(1);
 }
 
@@ -138,28 +210,40 @@ function connectDB() {
       serverSelectionTimeoutMS: 10000,
       socketTimeoutMS: 45000,
     })
-    .then((conn) => {
-      console.log('✅ MongoDB connected successfully');
+    .then(async (conn) => {
+      logger.info('MongoDB connected successfully');
+      
+      // Initialize database indexes
+      await initializeIndexes();
+      
+      // Schedule periodic backups
+      if (process.env.BACKUP_ENABLED !== 'false') {
+        schedulePeriodicBackups();
+      }
+      
       cachedConnection = conn;
       return conn;
+    })
+    .catch((err) => {
+      logger.error('MongoDB connection failed', { error: err.message });
+      throw err;
     });
 }
 
 mongoose.connection.on('error', (err) => {
-  console.error('⚠️ MongoDB connection error:', err.message);
+  logger.error('MongoDB connection error', { error: err.message });
   cachedConnection = null;
 });
 
 mongoose.connection.on('disconnected', () => {
-  console.warn('⚠️ MongoDB disconnected.');
+  logger.warn('MongoDB disconnected');
   cachedConnection = null;
 });
 
-// In serverless (Vercel), don't start a listener — just connect to DB
 // In standalone mode, start the HTTP server
 if (!process.env.VERCEL) {
   const server = app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 MessWala server listening on 0.0.0.0:${PORT}`);
+    logger.info(`MessWala server listening on 0.0.0.0:${PORT}`);
   });
 
   // Retry logic for standalone server
@@ -167,28 +251,50 @@ if (!process.env.VERCEL) {
   let retryCount = 0;
 
   function connectWithRetry() {
-    console.log(`🔄 MongoDB connection attempt ${retryCount + 1}/${MAX_RETRIES}...`);
+    logger.info(`MongoDB connection attempt ${retryCount + 1}/${MAX_RETRIES}`);
     connectDB().catch((err) => {
       retryCount++;
-      console.error(`❌ MongoDB error (attempt ${retryCount}/${MAX_RETRIES}):`, err.message);
+      logger.error('MongoDB connection error', { 
+        error: err.message,
+        attempt: retryCount,
+        maxRetries: MAX_RETRIES,
+      });
       if (retryCount < MAX_RETRIES) {
         const delay = Math.min(retryCount * 5000, 30000);
-        console.log(`⏳ Retrying in ${delay / 1000}s...`);
+        logger.info(`Retrying in ${delay / 1000}s`);
         setTimeout(connectWithRetry, delay);
+      } else {
+        logger.error('Max MongoDB connection retries reached');
       }
     });
   }
   connectWithRetry();
 
   process.on('SIGTERM', () => {
-    console.log('🛑 SIGTERM received. Shutting down...');
+    logger.info('SIGTERM received, shutting down gracefully');
     server.close(() => {
-      mongoose.connection.close(false, () => process.exit(0));
+      mongoose.connection.close(false, () => {
+        logger.info('Server shutdown complete');
+        process.exit(0);
+      });
+    });
+  });
+
+  process.on('SIGINT', () => {
+    logger.info('SIGINT received, shutting down gracefully');
+    server.close(() => {
+      mongoose.connection.close(false, () => {
+        logger.info('Server shutdown complete');
+        process.exit(0);
+      });
     });
   });
 } else {
-  // Serverless: connect once at module load, store promise for handler to await
-  app.dbReady = connectDB().catch((err) => console.error('❌ Serverless MongoDB error:', err.message));
+  // Serverless: connect once at module load
+  logger.info('Serverless mode detected, connecting to MongoDB');
+  app.dbReady = connectDB().catch((err) => 
+    logger.error('Serverless MongoDB error', { error: err.message })
+  );
 }
 
 module.exports = app;
