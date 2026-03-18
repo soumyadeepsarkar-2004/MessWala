@@ -16,19 +16,13 @@ describe('Security Tests - Injection Prevention', () => {
     });
 
     test('should prevent ObjectId injection', async () => {
-      const injections = [
-        'user._id=$user._id',
-        'id[$ne]=""',
-      ];
+      const injections = ['user._id=$user._id', 'id[$ne]=""'];
 
       // Should validate ObjectId format
     });
 
     test('should prevent function code injection', async () => {
-      const injections = [
-        "'; return true; //",
-        "function(){return true;}",
-      ];
+      const injections = ["'; return true; //", 'function(){return true;}'];
 
       // Should sanitize entirely
     });

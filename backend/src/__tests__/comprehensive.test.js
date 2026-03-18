@@ -10,23 +10,29 @@ const { adminLogin, googleAuth, completeProfile } = require('../controllers/auth
 describe('Auth Controller - Comprehensive Tests', () => {
   describe('adminLogin - Input Validation & Edge Cases', () => {
     test('should reject missing email', async () => {
-      const result = await adminLogin({
-        body: { password: 'Test1234!' },
-        headers: {},
-      }, {
-        status: () => ({ json: jest.fn() }),
-      });
+      const result = await adminLogin(
+        {
+          body: { password: 'Test1234!' },
+          headers: {},
+        },
+        {
+          status: () => ({ json: jest.fn() }),
+        },
+      );
 
       // Should return 400 error
     });
 
     test('should reject missing password', async () => {
-      const result = await adminLogin({
-        body: { email: 'test@example.com' },
-        headers: {},
-      }, {
-        status: () => ({ json: jest.fn() }),
-      });
+      const result = await adminLogin(
+        {
+          body: { email: 'test@example.com' },
+          headers: {},
+        },
+        {
+          status: () => ({ json: jest.fn() }),
+        },
+      );
     });
 
     test('should reject invalid email format', async () => {
@@ -65,7 +71,7 @@ describe('Auth Controller - Comprehensive Tests', () => {
       const injectionAttempts = [
         "admin' OR '1'='1",
         "'; DROP TABLE users; --",
-        "1 UNION SELECT * FROM users",
+        '1 UNION SELECT * FROM users',
       ];
 
       for (const attempt of injectionAttempts) {
@@ -206,10 +212,7 @@ describe('Auth Controller - Comprehensive Tests', () => {
     });
 
     test('should prevent NoSQL injection in name', async () => {
-      const injections = [
-        { $ne: null },
-        { $regex: '.*' },
-      ];
+      const injections = [{ $ne: null }, { $regex: '.*' }];
 
       for (const injection of injections) {
         // Should prevent object injection
@@ -286,12 +289,7 @@ describe('Expense Controller - Comprehensive Tests', () => {
     });
 
     test('should reject invalid category', async () => {
-      const invalidCategories = [
-        'furniture',
-        'electronics',
-        'luxury',
-        '',
-      ];
+      const invalidCategories = ['furniture', 'electronics', 'luxury', ''];
 
       for (const category of invalidCategories) {
         // Should validate against allowed list
@@ -353,12 +351,7 @@ describe('Expense Controller - Comprehensive Tests', () => {
     });
 
     test('should validate pagination parameters', async () => {
-      const invalidParams = [
-        { page: 0 },
-        { page: -1 },
-        { limit: 0 },
-        { limit: 10000 },
-      ];
+      const invalidParams = [{ page: 0 }, { page: -1 }, { limit: 0 }, { limit: 10000 }];
 
       for (const params of invalidParams) {
         // Should validate
@@ -375,15 +368,15 @@ describe('Expense Controller - Comprehensive Tests', () => {
   });
 
   describe('Expense - Multi-Tenant Isolation', () => {
-    test('should return only hostel\'s expenses', async () => {
+    test("should return only hostel's expenses", async () => {
       // Should filter by hostelId
     });
 
-    test('should prevent viewing other hostel\'s expenses', async () => {
+    test("should prevent viewing other hostel's expenses", async () => {
       // RBAC + data isolation
     });
 
-    test('should prevent editing other hostel\'s expenses', async () => {
+    test("should prevent editing other hostel's expenses", async () => {
       // Authorization check
     });
   });

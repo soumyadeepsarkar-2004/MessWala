@@ -1,3 +1,4 @@
+import React, { useState, useEffect, createContext } from 'react';
 import en from '../locales/en.json';
 import hi from '../locales/hi.json';
 
@@ -66,9 +67,9 @@ export const i18n = new I18n();
 
 // React Hook
 export function useTranslation() {
-  const [language, setLanguage] = React.useState(i18n.getLanguage());
+  const [language, setLanguage] = useState(i18n.getLanguage());
 
-  React.useEffect(() => {
+  useEffect(() => {
     const unsubscribe = i18n.subscribe(setLanguage);
     return unsubscribe;
   }, []);
@@ -83,24 +84,21 @@ export function useTranslation() {
 }
 
 // React Context (alternative approach)
-export const I18nContext = React.createContext(i18n);
+export const I18nContext = createContext(i18n);
 
+// eslint-disable-next-line react/prop-types
 export function I18nProvider({ children }) {
-  const [language, setLanguage] = React.useState(() => {
+  const [language, setLanguage] = useState(() => {
     i18n.initialize();
     return i18n.getLanguage();
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     const unsubscribe = i18n.subscribe(setLanguage);
     return unsubscribe;
   }, []);
 
-  return (
-    <I18nContext.Provider value={{ ...i18n, language }}>
-      {children}
-    </I18nContext.Provider>
-  );
+  return <I18nContext.Provider value={{ ...i18n, language }}>{children}</I18nContext.Provider>;
 }
 
 export function useI18n() {

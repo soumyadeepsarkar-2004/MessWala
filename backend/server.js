@@ -10,14 +10,8 @@ require('dotenv').config();
 const { errorHandler, asyncHandler } = require('./src/utils/errors');
 const { requestLogger, errorLogger, getLogger } = require('./src/utils/logger');
 const { performanceMonitoringMiddleware, getHealthStatus } = require('./src/utils/performance');
-const { 
-  detectApiVersion,
-  checkVersionCompatibility
-} = require('./src/utils/versioning');
-const { 
-  initializeIndexes,
-  performanceMonitor
-} = require('./src/utils/database');
+const { detectApiVersion, checkVersionCompatibility } = require('./src/utils/versioning');
+const { initializeIndexes, performanceMonitor } = require('./src/utils/database');
 const { backupManager, schedulePeriodicBackups } = require('./src/utils/backup');
 
 const logger = getLogger('Server');
@@ -37,23 +31,27 @@ if (process.env.FRONTEND_URL) {
   ALLOWED_ORIGINS.push(process.env.FRONTEND_URL);
 }
 
-app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || ALLOWED_ORIGINS.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-}));
+app.use(
+  cors({
+    origin(origin, callback) {
+      if (!origin || ALLOWED_ORIGINS.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  }),
+);
 
 // Security middleware
-app.use(helmet({
-  contentSecurityPolicy: false, // CSP handled by Vercel's vercel.json headers
-}));
+app.use(
+  helmet({
+    contentSecurityPolicy: false, // CSP handled by Vercel's vercel.json headers
+  }),
+);
 
 app.use(express.json());
 
@@ -76,10 +74,10 @@ const authLimiter = rateLimit({
   message: { success: false, error: 'Too many attempts, please try again after 15 minutes' },
   store: process.env.MONGO_URI
     ? new MongoStore({
-      uri: process.env.MONGO_URI,
-      collectionName: 'rateLimits',
-      expireTimeMs: 15 * 60 * 1000,
-    })
+        uri: process.env.MONGO_URI,
+        collectionName: 'rateLimits',
+        expireTimeMs: 15 * 60 * 1000,
+      })
     : undefined, // falls back to in-memory for local dev without DB
 });
 
@@ -126,31 +124,40 @@ app.get('/api/version', (req, res) => {
 });
 
 // Backup management endpoints (admin only)
-app.post('/api/admin/backup', asyncHandler(async (req, res) => {
-  const backup = await backupManager.createFullBackup();
-  res.json({
-    success: true,
-    message: 'Backup created successfully',
-    data: backup,
-  });
-}));
+app.post(
+  '/api/admin/backup',
+  asyncHandler(async (req, res) => {
+    const backup = await backupManager.createFullBackup();
+    res.json({
+      success: true,
+      message: 'Backup created successfully',
+      data: backup,
+    });
+  }),
+);
 
-app.get('/api/admin/backups', asyncHandler(async (req, res) => {
-  const backups = backupManager.listBackups();
-  res.json({
-    success: true,
-    data: backups,
-  });
-}));
+app.get(
+  '/api/admin/backups',
+  asyncHandler(async (req, res) => {
+    const backups = backupManager.listBackups();
+    res.json({
+      success: true,
+      data: backups,
+    });
+  }),
+);
 
-app.post('/api/admin/restore/:timestamp', asyncHandler(async (req, res) => {
-  const result = await backupManager.restoreFromBackup(req.params.timestamp);
-  res.json({
-    success: true,
-    message: 'Restore completed',
-    data: result,
-  });
-}));
+app.post(
+  '/api/admin/restore/:timestamp',
+  asyncHandler(async (req, res) => {
+    const result = await backupManager.restoreFromBackup(req.params.timestamp);
+    res.json({
+      success: true,
+      message: 'Restore completed',
+      data: result,
+    });
+  }),
+);
 
 // Mount routes
 app.use('/api/auth', authRoutes);
@@ -188,12 +195,16 @@ logger.info('Server startup initiated', {
 
 if (!process.env.MONGO_URI) {
   logger.error('FATAL: MONGO_URI environment variable is missing');
-  if (!process.env.VERCEL) process.exit(1);
+  if (!process.env.VERCEL) {
+    process.exit(1);
+  }
 }
 
 if (!process.env.JWT_SECRET) {
   logger.error('FATAL: JWT_SECRET environment variable is missing');
-  if (!process.env.VERCEL) process.exit(1);
+  if (!process.env.VERCEL) {
+    process.exit(1);
+  }
 }
 
 const mongoUri = process.env.MONGO_URI;
@@ -212,15 +223,15 @@ function connectDB() {
     })
     .then(async (conn) => {
       logger.info('MongoDB connected successfully');
-      
+
       // Initialize database indexes
       await initializeIndexes();
-      
+
       // Schedule periodic backups
       if (process.env.BACKUP_ENABLED !== 'false') {
         schedulePeriodicBackups();
       }
-      
+
       cachedConnection = conn;
       return conn;
     })
@@ -247,14 +258,14 @@ if (!process.env.VERCEL) {
   });
 
   // Retry logic for standalone server
-  const MAX_RETRIES = 10;
   let retryCount = 0;
+  const MAX_RETRIES = 10;
 
-  function connectWithRetry() {
+  const connectWithRetry = () => {
     logger.info(`MongoDB connection attempt ${retryCount + 1}/${MAX_RETRIES}`);
     connectDB().catch((err) => {
       retryCount++;
-      logger.error('MongoDB connection error', { 
+      logger.error('MongoDB connection error', {
         error: err.message,
         attempt: retryCount,
         maxRetries: MAX_RETRIES,
@@ -267,7 +278,7 @@ if (!process.env.VERCEL) {
         logger.error('Max MongoDB connection retries reached');
       }
     });
-  }
+  };
   connectWithRetry();
 
   process.on('SIGTERM', () => {
@@ -292,8 +303,8 @@ if (!process.env.VERCEL) {
 } else {
   // Serverless: connect once at module load
   logger.info('Serverless mode detected, connecting to MongoDB');
-  app.dbReady = connectDB().catch((err) => 
-    logger.error('Serverless MongoDB error', { error: err.message })
+  app.dbReady = connectDB().catch((err) =>
+    logger.error('Serverless MongoDB error', { error: err.message }),
   );
 }
 

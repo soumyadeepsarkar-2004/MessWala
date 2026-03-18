@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const {
-    createTask,
-    getTasks,
-    updateTask,
-    toggleTask,
-    deleteTask,
+  createTask,
+  getTasks,
+  updateTask,
+  toggleTask,
+  deleteTask,
 } = require('../controllers/taskController');
 const { protect, requireApproval } = require('../middleware/authMiddleware');
 

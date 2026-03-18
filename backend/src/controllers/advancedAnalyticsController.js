@@ -21,13 +21,17 @@ const Feedback = require('../models/Feedback');
  */
 async function getMealPreferences(req, res) {
   try {
-    const { startDate, endDate, limit = 10 } = req.query;
+    const { startDate, endDate } = req.query;
 
     const query = {};
     if (startDate || endDate) {
       query.date = {};
-      if (startDate) query.date.$gte = new Date(startDate);
-      if (endDate) query.date.$lte = new Date(endDate);
+      if (startDate) {
+        query.date.$gte = new Date(startDate);
+      }
+      if (endDate) {
+        query.date.$lte = new Date(endDate);
+      }
     }
 
     const meals = await MealAttendance.find(query);
@@ -57,8 +61,12 @@ async function getExpenseTrends(req, res) {
     const query = {};
     if (startDate || endDate) {
       query.date = {};
-      if (startDate) query.date.$gte = new Date(startDate);
-      if (endDate) query.date.$lte = new Date(endDate);
+      if (startDate) {
+        query.date.$gte = new Date(startDate);
+      }
+      if (endDate) {
+        query.date.$lte = new Date(endDate);
+      }
     }
 
     const expenses = await Expense.find(query).sort({ date: 1 });
@@ -88,8 +96,12 @@ async function getCostPredictions(req, res) {
     const query = {};
     if (startDate || endDate) {
       query.date = {};
-      if (startDate) query.date.$gte = new Date(startDate);
-      if (endDate) query.date.$lte = new Date(endDate);
+      if (startDate) {
+        query.date.$gte = new Date(startDate);
+      }
+      if (endDate) {
+        query.date.$lte = new Date(endDate);
+      }
     }
 
     const expenses = await Expense.find(query).sort({ date: 1 });
@@ -120,8 +132,12 @@ async function getWastageAnalysis(req, res) {
     const query = {};
     if (startDate || endDate) {
       query.date = {};
-      if (startDate) query.date.$gte = new Date(startDate);
-      if (endDate) query.date.$lte = new Date(endDate);
+      if (startDate) {
+        query.date.$gte = new Date(startDate);
+      }
+      if (endDate) {
+        query.date.$lte = new Date(endDate);
+      }
     }
 
     const [attendances, expenses] = await Promise.all([
@@ -155,8 +171,12 @@ async function getSatisfactionAnalytics(req, res) {
     const query = {};
     if (startDate || endDate) {
       query.createdAt = {};
-      if (startDate) query.createdAt.$gte = new Date(startDate);
-      if (endDate) query.createdAt.$lte = new Date(endDate);
+      if (startDate) {
+        query.createdAt.$gte = new Date(startDate);
+      }
+      if (endDate) {
+        query.createdAt.$lte = new Date(endDate);
+      }
     }
 
     const feedback = await Feedback.find(query);
@@ -186,8 +206,12 @@ async function getComprehensiveAnalytics(req, res) {
     const query = {};
     if (startDate || endDate) {
       query.date = {};
-      if (startDate) query.date.$gte = new Date(startDate);
-      if (endDate) query.date.$lte = new Date(endDate);
+      if (startDate) {
+        query.date.$gte = new Date(startDate);
+      }
+      if (endDate) {
+        query.date.$lte = new Date(endDate);
+      }
     }
 
     const [expenses, attendances, feedback] = await Promise.all([

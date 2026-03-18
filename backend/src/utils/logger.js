@@ -61,7 +61,7 @@ class Logger {
     const timestamp = new Date().toISOString();
     const levelName = LOG_LEVEL_NAMES[level];
     const context = this.requestContext ? ` [${this.requestContext.requestId}]` : '';
-    
+
     return {
       timestamp,
       level: levelName,
@@ -80,7 +80,9 @@ class Logger {
    * Write log to console and file
    */
   write(level, message, data = {}) {
-    if (level < this.minLevel) return;
+    if (level < this.minLevel) {
+      return;
+    }
 
     const logEntry = this.formatMessage(level, message, data);
     const logLine = JSON.stringify(logEntry);
@@ -96,6 +98,7 @@ class Logger {
     };
 
     const color = colors[LOG_LEVEL_NAMES[level]] || '';
+    // eslint-disable-next-line no-console
     console.log(`${color}${logLine}${colors.RESET}`);
 
     // File output

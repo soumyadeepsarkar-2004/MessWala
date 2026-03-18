@@ -24,9 +24,7 @@ describe('Navbar Component', () => {
 
   it('should call logout handler on logout', async () => {
     const mockLogout = vi.fn();
-    render(
-      <Navbar isAuthenticated={true} user={{ name: 'John' }} onLogout={mockLogout} />
-    );
+    render(<Navbar isAuthenticated={true} user={{ name: 'John' }} onLogout={mockLogout} />);
 
     const logoutButton = screen.getByRole('button', { name: /logout/i });
     await userEvent.click(logoutButton);

@@ -1,20 +1,20 @@
 const express = require('express');
 const router = express.Router();
 const {
-    adminLogin,
-    googleAuth,
-    completeProfile,
-    forgotPassword,
-    verifyOTP,
-    resetPassword,
-    approveStudent,
-    rejectStudent,
-    getPendingStudents,
-    getApprovedStudents,
-    getProfile,
-    getUsers,
-    adminSetup,
-    getMessConfig,
+  adminLogin,
+  googleAuth,
+  completeProfile,
+  forgotPassword,
+  verifyOTP,
+  resetPassword,
+  approveStudent,
+  rejectStudent,
+  getPendingStudents,
+  getApprovedStudents,
+  getProfile,
+  getUsers,
+  adminSetup,
+  getMessConfig,
 } = require('../controllers/authController');
 const { protect, authorize } = require('../middleware/authMiddleware');
 

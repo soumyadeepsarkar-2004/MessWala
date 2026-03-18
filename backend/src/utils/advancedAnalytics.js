@@ -48,7 +48,9 @@ function analyzeMealPreferences(meals) {
  * @return {Object} Trends, anomalies, and forecasts
  */
 function analyzeExpenseTrends(expenses) {
-  if (expenses.length === 0) return {};
+  if (expenses.length === 0) {
+    return {};
+  }
 
   // Sort by date
   const sorted = [...expenses].sort((a, b) => new Date(a.date) - new Date(b.date));
@@ -73,7 +75,7 @@ function analyzeExpenseTrends(expenses) {
       anomalies.push({
         date,
         amount: total,
-        deviation: ((total - avg) / avg * 100).toFixed(2) + '%',
+        deviation: (((total - avg) / avg) * 100).toFixed(2) + '%',
       });
     }
   });
@@ -160,7 +162,7 @@ function predictMealCosts(expenses, daysAhead = 30) {
     futureDate.setDate(futureDate.getDate() + i);
 
     const predicted = intercept + slope * (n + i);
-    const confidence = Math.max(0.7, 1 - stdDev / avg * 0.1); // Confidence between 0.7 and 1
+    const confidence = Math.max(0.7, 1 - (stdDev / avg) * 0.1); // Confidence between 0.7 and 1
 
     predictions.push({
       date: futureDate.toISOString().split('T')[0],
@@ -202,7 +204,9 @@ function analyzeWastage(attendances, expenses) {
   });
 
   const wastageAnalysis = [];
-  const avgAttendance = Object.values(attendanceByDate).reduce((a, b) => a + b, 0) / Object.keys(attendanceByDate).length;
+  const avgAttendance =
+    Object.values(attendanceByDate).reduce((a, b) => a + b, 0) /
+    Object.keys(attendanceByDate).length;
 
   Object.entries(dailyExpenses).forEach(([date, expense]) => {
     const attendance = attendanceByDate[date] || 0;
@@ -217,7 +221,8 @@ function analyzeWastage(attendances, expenses) {
         attendance,
         totalExpense: expense,
         costPerPerson,
-        variance: ((costPerPerson - (avgAttendance * 1.5)) / (avgAttendance * 1.5) * 100).toFixed(2) + '%',
+        variance:
+          (((costPerPerson - avgAttendance * 1.5) / (avgAttendance * 1.5)) * 100).toFixed(2) + '%',
         potentialWastage: true,
       });
     }
@@ -244,7 +249,8 @@ function generateWastageRecommendations(wastageAnalysis) {
   }
 
   const highVarianceDays = wastageAnalysis.filter((w) => w.potentialWastage).length;
-  const avgVariance = wastageAnalysis.reduce((sum, w) => sum + parseFloat(w.variance), 0) / wastageAnalysis.length;
+  const avgVariance =
+    wastageAnalysis.reduce((sum, w) => sum + parseFloat(w.variance), 0) / wastageAnalysis.length;
 
   if (highVarianceDays > wastageAnalysis.length * 0.5) {
     recommendations.push(
@@ -253,9 +259,7 @@ function generateWastageRecommendations(wastageAnalysis) {
   }
 
   if (avgVariance > 50) {
-    recommendations.push(
-      'Implement portion control guidelines to reduce per-person cost variance',
-    );
+    recommendations.push('Implement portion control guidelines to reduce per-person cost variance');
   }
 
   recommendations.push('Track daily attendance more accurately for better meal planning');
@@ -287,7 +291,7 @@ function analyzeSatisfaction(feedback) {
   };
 
   ratings.forEach((r) => {
-    if (distribution.hasOwnProperty(r)) {
+    if (Object.prototype.hasOwnProperty.call(distribution, r)) {
       distribution[r] += 1;
     }
   });
@@ -303,10 +307,14 @@ function analyzeSatisfaction(feedback) {
     if (f.comment) {
       const comment = f.comment.toLowerCase();
       positiveKeywords.forEach((kw) => {
-        if (comment.includes(kw)) positiveCount += 1;
+        if (comment.includes(kw)) {
+          positiveCount += 1;
+        }
       });
       negativeKeywords.forEach((kw) => {
-        if (comment.includes(kw)) negativeCount += 1;
+        if (comment.includes(kw)) {
+          negativeCount += 1;
+        }
       });
     }
   });
@@ -320,7 +328,11 @@ function analyzeSatisfaction(feedback) {
       negative: negativeCount,
       neutral: feedback.length - positiveCount - negativeCount,
     },
-    recommendations: generateSatisfactionRecommendations(parseFloat(avgRating), positiveCount, negativeCount),
+    recommendations: generateSatisfactionRecommendations(
+      parseFloat(avgRating),
+      positiveCount,
+      negativeCount,
+    ),
   };
 }
 

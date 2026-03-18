@@ -23,14 +23,7 @@ const API_VERSIONS = {
     description: 'Current production version',
     deprecatedSince: null,
     sunsetDate: null,
-    features: [
-      'JWT auth',
-      'OAuth2',
-      'multi-hostel',
-      'advanced analytics',
-      'i18n',
-      'compliance',
-    ],
+    features: ['JWT auth', 'OAuth2', 'multi-hostel', 'advanced analytics', 'i18n', 'compliance'],
   },
   v3: {
     status: 'beta',
@@ -87,14 +80,8 @@ function detectApiVersion(req, res, next) {
 
   // Log deprecation warnings
   if (API_VERSIONS[version].status === 'deprecated') {
-    res.set(
-      'Deprecation',
-      'true'
-    );
-    res.set(
-      'Sunset',
-      API_VERSIONS[version].sunsetDate
-    );
+    res.set('Deprecation', 'true');
+    res.set('Sunset', API_VERSIONS[version].sunsetDate);
 
     logger.warn('Deprecated API version used', {
       version,
@@ -141,7 +128,7 @@ function validateVersionEndpoint(req, res, next) {
     res.set('Link', `<${deprecationInfo.replacement}>; rel="successor-version"`);
 
     const daysTillSunset = Math.ceil(
-      (new Date(deprecationInfo.sunsetDate) - new Date()) / (1000 * 60 * 60 * 24)
+      (new Date(deprecationInfo.sunsetDate) - new Date()) / (1000 * 60 * 60 * 24),
     );
 
     logger.warn('Endpoint nearing sunset', {
@@ -215,7 +202,7 @@ const V1_TO_V2_MIGRATION_MAP = {
  */
 function handleV1ApiRequest(req, res, next) {
   const oldPath = req.path;
-  const newPath = V1_TO_V1_MIGRATION_MAP[oldPath];
+  const newPath = V1_TO_V2_MIGRATION_MAP[oldPath];
 
   if (newPath) {
     logger.info('V1 API redirect', {
@@ -250,7 +237,7 @@ function getApiDocumentation(version = 'v2') {
 /**
  * Get endpoints available in version
  */
-function getEndpointsForVersion(version) {
+function getEndpointsForVersion(_version) {
   // This would be auto-generated from routes
   return {
     auth: [
@@ -286,13 +273,11 @@ function checkVersionCompatibility(req, res, next) {
 
   // If version is deprecated, add Warning header
   if (config.status === 'deprecated') {
-    const days = Math.ceil(
-      (new Date(config.sunsetDate) - new Date()) / (1000 * 60 * 60 * 24)
-    );
+    const days = Math.ceil((new Date(config.sunsetDate) - new Date()) / (1000 * 60 * 60 * 24));
 
     res.set(
       'Warning',
-      `299 - "API Version Deprecated" "${version} will be discontinued in ${days} days. See ${config.replacement} for upgrade guide."`
+      `299 - "API Version Deprecated" "${version} will be discontinued in ${days} days. See ${config.replacement} for upgrade guide."`,
     );
   }
 

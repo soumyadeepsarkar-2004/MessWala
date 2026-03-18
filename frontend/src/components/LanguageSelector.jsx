@@ -10,11 +10,11 @@ export default function LanguageSelector() {
   ];
 
   return (
-    <div className="language-selector">
+    <div className='language-selector'>
       <select
         value={language}
         onChange={(e) => i18n.setLanguage(e.target.value)}
-        className="language-select"
+        className='language-select'
       >
         {languages.map((lang) => (
           <option key={lang.code} value={lang.code}>

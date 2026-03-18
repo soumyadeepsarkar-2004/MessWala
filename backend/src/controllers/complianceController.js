@@ -4,7 +4,6 @@
  */
 
 const ComplianceDocument = require('../models/ComplianceDocument');
-const { validateDateString } = require('../utils/validation');
 
 /**
  * POST /api/compliance/documents
@@ -59,8 +58,12 @@ async function getDocuments(req, res) {
 
     const query = { hostel };
 
-    if (documentType) query.documentType = documentType;
-    if (status) query.status = status;
+    if (documentType) {
+      query.documentType = documentType;
+    }
+    if (status) {
+      query.status = status;
+    }
 
     const documents = await ComplianceDocument.find(query)
       .populate('uploadedBy', 'name email')
@@ -250,10 +253,7 @@ async function deleteDocument(req, res) {
     }
 
     // Only uploader or admin can delete
-    if (
-      document.uploadedBy.toString() !== req.user._id.toString() &&
-      req.user.role !== 'admin'
-    ) {
+    if (document.uploadedBy.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
       return res.status(403).json({
         success: false,
         error: 'You do not have permission to delete this document',

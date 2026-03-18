@@ -313,7 +313,10 @@ class PerformanceMonitor {
 
     // Alert on slow queries
     if (duration > 1000) {
-      logger.warn(`Slow query detected on ${modelName}`, { duration: `${duration}ms`, resultCount });
+      logger.warn(`Slow query detected on ${modelName}`, {
+        duration: `${duration}ms`,
+        resultCount,
+      });
     }
   }
 

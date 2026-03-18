@@ -54,8 +54,7 @@ class PerformanceMetrics {
       (this.metrics.requests.byStatus[statusCode] || 0) + 1;
 
     // By method
-    this.metrics.requests.byMethod[method] =
-      (this.metrics.requests.byMethod[method] || 0) + 1;
+    this.metrics.requests.byMethod[method] = (this.metrics.requests.byMethod[method] || 0) + 1;
 
     // Latency tracking
     this.recordLatency(duration);
@@ -94,7 +93,9 @@ class PerformanceMetrics {
     const sorted = this.metrics.latency.samples.sort((a, b) => a - b);
     const len = sorted.length;
 
-    if (len === 0) return;
+    if (len === 0) {
+      return;
+    }
 
     this.metrics.latency.mean = sorted.reduce((a, b) => a + b, 0) / len;
     this.metrics.latency.p50 = sorted[Math.floor(len * 0.5)];
@@ -187,12 +188,7 @@ function performanceMonitoringMiddleware(req, res, next) {
 
   res.json = function (data) {
     const duration = Date.now() - startTime;
-    performanceMetrics.recordRequest(
-      req.method,
-      req.path,
-      res.statusCode,
-      duration
-    );
+    performanceMetrics.recordRequest(req.method, req.path, res.statusCode, duration);
 
     if (duration > 1000) {
       logger.warn('Slow request', {
@@ -208,12 +204,7 @@ function performanceMonitoringMiddleware(req, res, next) {
 
   res.send = function (data) {
     const duration = Date.now() - startTime;
-    performanceMetrics.recordRequest(
-      req.method,
-      req.path,
-      res.statusCode,
-      duration
-    );
+    performanceMetrics.recordRequest(req.method, req.path, res.statusCode, duration);
 
     return originalSend.call(this, data);
   };

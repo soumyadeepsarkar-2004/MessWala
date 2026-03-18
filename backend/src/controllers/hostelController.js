@@ -139,10 +139,7 @@ async function updateHostel(req, res) {
     }
 
     // Check authorization
-    if (
-      hostel.admin.toString() !== req.user._id.toString() &&
-      req.user.role !== 'admin'
-    ) {
+    if (hostel.admin.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
       return res.status(403).json({
         success: false,
         error: 'You do not have permission to update this hostel',
@@ -278,10 +275,7 @@ async function deleteHostel(req, res) {
     }
 
     // Only admin or hostel owner can delete
-    if (
-      hostel.admin.toString() !== req.user._id.toString() &&
-      req.user.role !== 'admin'
-    ) {
+    if (hostel.admin.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
       return res.status(403).json({
         success: false,
         error: 'You do not have permission to delete this hostel',

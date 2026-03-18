@@ -1,12 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const {
-    addExpense,
-    getExpenses,
-    getMonthlySummary,
-    getCostPerPlate,
-    exportCSV,
-    deleteExpense,
+  addExpense,
+  getExpenses,
+  getMonthlySummary,
+  getCostPerPlate,
+  exportCSV,
+  deleteExpense,
 } = require('../controllers/expenseController');
 const { protect, authorize, requireApproval } = require('../middleware/authMiddleware');
 

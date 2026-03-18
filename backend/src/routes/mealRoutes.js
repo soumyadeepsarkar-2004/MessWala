@@ -1,12 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const {
-    markAttendance,
-    getDailyHeadcount,
-    getAttendanceHistory,
-    getAttendanceTrend,
-    getTodayAttendance,
-    getForecast,
+  markAttendance,
+  getDailyHeadcount,
+  getAttendanceHistory,
+  getAttendanceTrend,
+  getTodayAttendance,
+  getForecast,
 } = require('../controllers/mealController');
 const { protect, authorize, requireApproval } = require('../middleware/authMiddleware');
 

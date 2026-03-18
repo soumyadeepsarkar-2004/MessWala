@@ -1,12 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const {
-    getExpenseTrend,
-    getCategoryBreakdown,
-    getCostPerPlateTrend,
-    getWastageEstimate,
-    getTransparencyIndex,
-    getPredictedCost,
+  getExpenseTrend,
+  getCategoryBreakdown,
+  getCostPerPlateTrend,
+  getWastageEstimate,
+  getTransparencyIndex,
+  getPredictedCost,
 } = require('../controllers/analyticsController');
 const { protect, requireApproval } = require('../middleware/authMiddleware');
 

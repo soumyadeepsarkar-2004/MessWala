@@ -1,29 +1,29 @@
 const mongoose = require('mongoose');
 
 const mealAttendanceSchema = new mongoose.Schema(
-    {
-        userId: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'User',
-            required: true,
-        },
-        date: {
-            type: String, // YYYY-MM-DD format for easy querying
-            required: true,
-        },
-        mealType: {
-            type: String,
-            enum: ['breakfast', 'lunch', 'dinner'],
-            required: true,
-        },
-        present: {
-            type: Boolean,
-            default: true,
-        },
+  {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
     },
-    {
-        timestamps: true,
-    }
+    date: {
+      type: String, // YYYY-MM-DD format for easy querying
+      required: true,
+    },
+    mealType: {
+      type: String,
+      enum: ['breakfast', 'lunch', 'dinner'],
+      required: true,
+    },
+    present: {
+      type: Boolean,
+      default: true,
+    },
+  },
+  {
+    timestamps: true,
+  },
 );
 
 // Ensure one record per user per meal per day

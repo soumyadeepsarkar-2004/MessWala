@@ -177,7 +177,7 @@ class DatabaseBackupManager {
 
       const manifestPath = path.join(
         BACKUP_CONFIG.backupDir,
-        `manifest-${backupTimestamp.replace(/[:]/g, '-')}.json`
+        `manifest-${backupTimestamp.replace(/[:]/g, '-')}.json`,
       );
 
       fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));

@@ -17,9 +17,15 @@ function getUserLanguage(req) {
   const headerLang = req.headers['accept-language']?.split(',')[0]?.split('-')[0];
   const userLang = req.user?.language;
 
-  if (queryLang && queryLang in translations) return queryLang;
-  if (userLang && userLang in translations) return userLang;
-  if (headerLang && headerLang in translations) return headerLang;
+  if (queryLang && queryLang in translations) {
+    return queryLang;
+  }
+  if (userLang && userLang in translations) {
+    return userLang;
+  }
+  if (headerLang && headerLang in translations) {
+    return headerLang;
+  }
 
   return 'en'; // Default to English
 }
