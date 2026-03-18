@@ -1,3 +1,10 @@
+## [1.1.4](https://github.com/soumyadeepsarkar-2004/MessWala/compare/v1.1.3...v1.1.4) (2026-03-18)
+
+
+### Bug Fixes
+
+* add missing mealEmoji constant in MenuPage causing ReferenceError ([65b05ad](https://github.com/soumyadeepsarkar-2004/MessWala/commit/65b05ad8f9cabd54ff50cddd36df21f4abdf600b))
+
 ## [1.1.3](https://github.com/soumyadeepsarkar-2004/MessWala/compare/v1.1.2...v1.1.3) (2026-03-18)
 
 
