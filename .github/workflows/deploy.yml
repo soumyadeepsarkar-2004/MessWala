@@ -23,52 +23,6 @@ jobs:
           echo "Backend deployment triggered"
           echo "Render will detect this push and deploy automatically"
 
-  deploy-frontend:
-    name: Deploy Frontend to Vercel
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push' || github.event.workflow_run.conclusion == 'success'
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-
-      - name: Install Vercel CLI
-        run: npm install -g vercel
-
-      - name: Deploy to Vercel
-        # Note: Deployment skipped if VERCEL_TOKEN secret is not configured in repository settings
-        if: hashFiles('frontend/.vercelignore') == '' || true
-        run: |
-          if [ -z "$VERCEL_TOKEN" ]; then
-            echo "⏭️  Skipping Vercel deployment - VERCEL_TOKEN secret not configured"
-            echo "To enable: GitHub Settings → Secrets → Add VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID"
-            exit 0
-          fi
-          vercel deploy --prod \
-            --token="${VERCEL_TOKEN}" \
-            --scope="${VERCEL_ORG_ID}"
-        working-directory: frontend
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN || '' }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID || '' }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID || '' }}
-
-      - name: Comment Site URL
-        uses: actions/github-script@v7
-        if: github.event_name == 'pull_request'
-        with:
-          script: |
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: '✅ Frontend preview ready! Check the Vercel deployment link above.'
-            })
-
   docs-deploy:
     name: Deploy Docs to GitHub Pages
     runs-on: ubuntu-latest
