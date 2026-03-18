@@ -1,3 +1,21 @@
+## [1.1.2](https://github.com/soumyadeepsarkar-2004/MessWala/compare/v1.1.1...v1.1.2) (2026-03-18)
+
+
+### Bug Fixes
+
+* correct CSV export formatting and ensure proper string interpolation ([727b832](https://github.com/soumyadeepsarkar-2004/MessWala/commit/727b832eb66b3b23158c63987df2f664e10bb7fd))
+* document required GitHub secrets for Vercel deployment ([fa21199](https://github.com/soumyadeepsarkar-2004/MessWala/commit/fa211991ee23eed695837b5fd67361bf0b2b6fde))
+* make Vercel deployment conditional on token availability and add quotes around secrets ([d5871c3](https://github.com/soumyadeepsarkar-2004/MessWala/commit/d5871c3129ae6852da9e8fc1d7406e9319f8079b))
+* make Vercel deployment secrets optional with conditional check ([d2b0152](https://github.com/soumyadeepsarkar-2004/MessWala/commit/d2b0152e14527d5326339981a9da91917ec07c27))
+* move Vercel secrets to step-level env and add runtime check with documentation ([18e0e2a](https://github.com/soumyadeepsarkar-2004/MessWala/commit/18e0e2a48168e49a5edc88f12297d86ecbbc3f2e))
+* normalize line endings (LF) for all files ([74e0c9a](https://github.com/soumyadeepsarkar-2004/MessWala/commit/74e0c9aa554d80f101fca567e1c01859e9de459a))
+* remove manual Vercel deployment job (Vercel GitHub integration handles auto-deployment) ([aecc476](https://github.com/soumyadeepsarkar-2004/MessWala/commit/aecc476d5b954f6cf231187e96408bf88ea8d039))
+* update Vercel deployment action to official vercel/action and add environment context ([474fbff](https://github.com/soumyadeepsarkar-2004/MessWala/commit/474fbffe5e0bc9b84bd9709932f862238ef19fd6))
+* use default empty values for optional Vercel secrets to avoid context warnings ([25b2f73](https://github.com/soumyadeepsarkar-2004/MessWala/commit/25b2f732eb18683d0acb6e0c094a258344a2c3af))
+* use official vercel/action for cleaner deployment workflow ([4aa4a7b](https://github.com/soumyadeepsarkar-2004/MessWala/commit/4aa4a7b062fd74d8cd2aa76ca9f9faad89a384fa))
+* use step-level condition for optional Vercel secrets with env context ([de38538](https://github.com/soumyadeepsarkar-2004/MessWala/commit/de385384c3823521eeb9b09d00298f2e6a5f6504))
+* use Vercel CLI for deployment with proper environment variable handling ([6a495c8](https://github.com/soumyadeepsarkar-2004/MessWala/commit/6a495c8695d2a949a648ace752ec7ab2fac37141))
+
 ## [1.1.1](https://github.com/soumyadeepsarkar-2004/MessWala/compare/v1.1.0...v1.1.1) (2026-03-18)
 
 
