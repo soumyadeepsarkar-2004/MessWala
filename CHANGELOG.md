@@ -1,3 +1,12 @@
+## [1.1.1](https://github.com/soumyadeepsarkar-2004/MessWala/compare/v1.1.0...v1.1.1) (2026-03-18)
+
+
+### Bug Fixes
+
+* correct Navbar test import path ([de4e3d5](https://github.com/soumyadeepsarkar-2004/MessWala/commit/de4e3d52e6b6062b32f420ee9422031494e91e65))
+* remove unused import in mealController ([746bfee](https://github.com/soumyadeepsarkar-2004/MessWala/commit/746bfee332aa6b1f3c72813a73822568be71367d))
+* update validation utilities to support default parameters ([dfb38ec](https://github.com/soumyadeepsarkar-2004/MessWala/commit/dfb38ec246b72932d729b086196829db2fca6f2d))
+
 # [1.1.0](https://github.com/soumyadeepsarkar-2004/MessWala/compare/v1.0.0...v1.1.0) (2026-03-18)
 
 
