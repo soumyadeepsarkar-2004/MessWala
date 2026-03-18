@@ -79,10 +79,7 @@ npm install
 
 # Set up environment variables
 cp .env.example .env
-# Edit .env with your MongoDB URI
-
-# Seed sample data (60 days, 10 users)
-npm run seed
+# Edit .env with your MongoDB URI and JWT secret
 
 # Start backend server
 npm run dev
@@ -92,19 +89,30 @@ npm run dev
 # In a new terminal — Install & start frontend
 cd frontend
 npm install
+cp .env.example .env
+# Edit .env with your API URL and Google OAuth credentials
 npm run dev
 ```
 
 Open http://localhost:5173 in your browser.
 
-### Demo Credentials
+### First-Time Setup
 
-| Role | Email | Password |
-|------|-------|----------|
-| Admin | admin@messwala.com | admin123 |
-| Manager | manager@messwala.com | manager123 |
-| Treasurer | treasurer@messwala.com | treasurer123 |
-| Student | arjun@messwala.com | student123 |
+1. **Register as Admin** — The first user to sign up becomes the admin
+2. **Configure Mess** — Use the Setup Wizard to name your mess, set meal times, and configure preferences
+3. **Invite Users** — Share the app link with students, managers, and treasurers
+4. **Approve Students** — Admins/Managers approve student registrations from the dashboard
+
+### Development Seed Data (Optional)
+
+For development/testing only, you can populate the database with sample data:
+
+```bash
+cd backend
+ALLOW_SEED=true npm run seed
+```
+
+> ⚠️ **Warning:** The seed script clears ALL existing data. Never run in production.
 
 ## 📁 Project Structure
 
