@@ -1,0 +1,134 @@
+{
+  "common": {
+    "appName": "MessWala",
+    "home": "होम",
+    "about": "परिचय",
+    "contact": "संपर्क करें",
+    "settings": "सेटिंग्स",
+    "logout": "लॉगआउट",
+    "loading": "लोड हो रहा है...",
+    "error": "त्रुटि",
+    "success": "सफल",
+    "cancel": "रद्द करें",
+    "save": "सेव करें",
+    "delete": "हटाएं",
+    "edit": "संपादित करें",
+    "add": "जोड़ें",
+    "back": "पीछे",
+    "next": "आगे",
+    "previous": "पिछला"
+  },
+  "auth": {
+    "login": "लॉगिन करें",
+    "register": "पंजीकरण करें",
+    "email": "ईमेल",
+    "password": "पासवर्ड",
+    "confirmPassword": "पासवर्ड की पुष्टि करें",
+    "forgotPassword": "पासवर्ड भूल गए?",
+    "rememberMe": "मुझे याद रखें",
+    "invalidCredentials": "अमान्य ईमेल या पासवर्ड",
+    "emailExists": "ईमेल पहले से पंजीकृत है",
+    "passwordMismatch": "पासवर्ड मेल नहीं खाते",
+    "loginSuccess": "सफलतापूर्वक लॉगिन किया गया",
+    "logoutSuccess": "सफलतापूर्वक लॉगआउट किया गया"
+  },
+  "dashboard": {
+    "title": "डैशबोर्ड",
+    "welcome": "MessWala में आपका स्वागत है",
+    "today": "आज",
+    "thisMonth": "इस महीने",
+    "totalExpenses": "कुल खर्च",
+    "averagePerDay": "प्रति दिन औसत",
+    "costPerPlate": "प्रति प्लेट लागत",
+    "attendance": "उपस्थिति"
+  },
+  "expenses": {
+    "title": "खर्च",
+    "addExpense": "खर्च जोड़ें",
+    "date": "तारीख",
+    "amount": "राशि",
+    "category": "श्रेणी",
+    "description": "विवरण",
+    "categories": {
+      "groceries": "किराने का सामान",
+      "utilities": "उपयोगिताएं",
+      "maintenance": "रखरखाव",
+      "miscellaneous": "विविध"
+    },
+    "noExpenses": "कोई खर्च नहीं मिला",
+    "expenseAdded": "खर्च सफलतापूर्वक जोड़ा गया",
+    "expenseUpdated": "खर्च सफलतापूर्वक अपडेट किया गया",
+    "expenseDeleted": "खर्च सफलतापूर्वक हटाया गया"
+  },
+  "menu": {
+    "title": "मेनू",
+    "setMenu": "मेनू सेट करें",
+    "breakfast": "नाश्ता",
+    "lunch": "दोपहर का भोजन",
+    "dinner": "रात का खाना",
+    "items": "आइटम",
+    "noMenu": "इस तारीख के लिए कोई मेनू नहीं",
+    "menuUpdated": "मेनू सफलतापूर्वक अपडेट किया गया"
+  },
+  "attendance": {
+    "title": "उपस्थिति",
+    "markPresent": "मौजूद चिन्हित करें",
+    "markAbsent": "अनुपस्थित चिन्हित करें",
+    "status": "स्थिति",
+    "present": "मौजूद",
+    "absent": "अनुपस्थित",
+    "date": "तारीख",
+    "attendanceMarked": "उपस्थिति सफलतापूर्वक चिन्हित की गई"
+  },
+  "feedback": {
+    "title": "प्रतिक्रिया",
+    "submitFeedback": "प्रतिक्रिया सबमिट करें",
+    "rating": "रेटिंग",
+    "comment": "टिप्पणी",
+    "stars": "सितारे",
+    "excellent": "उत्कृष्ट",
+    "good": "अच्छा",
+    "average": "औसत",
+    "poor": "बुरा",
+    "feedbackSubmitted": "आपकी प्रतिक्रिया के लिए धन्यवाद!"
+  },
+  "analytics": {
+    "title": "विश्लेषण",
+    "mealPreferences": "भोजन वरीयताएं",
+    "expenseTrends": "खर्च के रुझान",
+    "costPredictions": "लागत भविष्यवाणी",
+    "wastageAnalysis": "बर्बादी विश्लेषण",
+    "satisfaction": "संतुष्टि",
+    "noData": "कोई डेटा उपलब्ध नहीं",
+    "period": "अवधि"
+  },
+  "navigation": {
+    "dashboard": "डैशबोर्ड",
+    "expenses": "खर्च",
+    "menu": "मेनू",
+    "attendance": "उपस्थिति",
+    "feedback": "प्रतिक्रिया",
+    "analytics": "विश्लेषण",
+    "tasks": "कार्य",
+    "settings": "सेटिंग्स"
+  },
+  "tasks": {
+    "title": "कार्य",
+    "addTask": "कार्य जोड़ें",
+    "taskName": "कार्य का नाम",
+    "priority": "प्राथमिकता",
+    "dueDate": "देय तारीख",
+    "status": "स्थिति",
+    "pending": "लंबित",
+    "completed": "पूर्ण",
+    "high": "उच्च",
+    "medium": "मध्यम",
+    "low": "कम"
+  },
+  "messages": {
+    "confirmDelete": "क्या आप वाकई हटाना चाहते हैं?",
+    "noResults": "कोई परिणाम नहीं मिले",
+    "tryAgain": "कृपया फिर से कोशिश करें",
+    "contactSupport": "सहायता के लिए सहायता से संपर्क करें"
+  }
+}

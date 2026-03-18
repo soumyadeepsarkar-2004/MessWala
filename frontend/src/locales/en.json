@@ -1,0 +1,134 @@
+{
+  "common": {
+    "appName": "MessWala",
+    "home": "Home",
+    "about": "About",
+    "contact": "Contact",
+    "settings": "Settings",
+    "logout": "Logout",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous"
+  },
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "forgotPassword": "Forgot Password?",
+    "rememberMe": "Remember Me",
+    "invalidCredentials": "Invalid email or password",
+    "emailExists": "Email already registered",
+    "passwordMismatch": "Passwords do not match",
+    "loginSuccess": "Logged in successfully",
+    "logoutSuccess": "Logged out successfully"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome to MessWala",
+    "today": "Today",
+    "thisMonth": "This Month",
+    "totalExpenses": "Total Expenses",
+    "averagePerDay": "Average Per Day",
+    "costPerPlate": "Cost Per Plate",
+    "attendance": "Attendance"
+  },
+  "expenses": {
+    "title": "Expenses",
+    "addExpense": "Add Expense",
+    "date": "Date",
+    "amount": "Amount",
+    "category": "Category",
+    "description": "Description",
+    "categories": {
+      "groceries": "Groceries",
+      "utilities": "Utilities",
+      "maintenance": "Maintenance",
+      "miscellaneous": "Miscellaneous"
+    },
+    "noExpenses": "No expenses found",
+    "expenseAdded": "Expense added successfully",
+    "expenseUpdated": "Expense updated successfully",
+    "expenseDeleted": "Expense deleted successfully"
+  },
+  "menu": {
+    "title": "Menu",
+    "setMenu": "Set Menu",
+    "breakfast": "Breakfast",
+    "lunch": "Lunch",
+    "dinner": "Dinner",
+    "items": "Items",
+    "noMenu": "No menu set for this date",
+    "menuUpdated": "Menu updated successfully"
+  },
+  "attendance": {
+    "title": "Attendance",
+    "markPresent": "Mark Present",
+    "markAbsent": "Mark Absent",
+    "status": "Status",
+    "present": "Present",
+    "absent": "Absent",
+    "date": "Date",
+    "attendanceMarked": "Attendance marked successfully"
+  },
+  "feedback": {
+    "title": "Feedback",
+    "submitFeedback": "Submit Feedback",
+    "rating": "Rating",
+    "comment": "Comment",
+    "stars": "Stars",
+    "excellent": "Excellent",
+    "good": "Good",
+    "average": "Average",
+    "poor": "Poor",
+    "feedbackSubmitted": "Thank you for your feedback!"
+  },
+  "analytics": {
+    "title": "Analytics",
+    "mealPreferences": "Meal Preferences",
+    "expenseTrends": "Expense Trends",
+    "costPredictions": "Cost Predictions",
+    "wastageAnalysis": "Wastage Analysis",
+    "satisfaction": "Satisfaction",
+    "noData": "No data available",
+    "period": "Period"
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "expenses": "Expenses",
+    "menu": "Menu",
+    "attendance": "Attendance",
+    "feedback": "Feedback",
+    "analytics": "Analytics",
+    "tasks": "Tasks",
+    "settings": "Settings"
+  },
+  "tasks": {
+    "title": "Tasks",
+    "addTask": "Add Task",
+    "taskName": "Task Name",
+    "priority": "Priority",
+    "dueDate": "Due Date",
+    "status": "Status",
+    "pending": "Pending",
+    "completed": "Completed",
+    "high": "High",
+    "medium": "Medium",
+    "low": "Low"
+  },
+  "messages": {
+    "confirmDelete": "Are you sure you want to delete?",
+    "noResults": "No results found",
+    "tryAgain": "Please try again",
+    "contactSupport": "Contact support for help"
+  }
+}

@@ -1,0 +1,10 @@
+node_modules
+dist
+build
+coverage
+.git
+.env
+.env.local
+__tests__
+cypress
+*.config.js
