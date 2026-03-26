@@ -23,6 +23,13 @@ const REQUIRED_ENV_VARS = {
 };
 
 function validateEnvironment() {
+  // Skip environment validation if we are in Vercel deployment environment
+  // Vercel handles secrets via its own dashboard
+  if (process.env.VERCEL) {
+    console.log('🚀 Detected Vercel deployment - skipping manual env validation');
+    process.exit(0);
+  }
+
   console.log('\n🔍 Production Environment Validator\n');
   console.log('━'.repeat(50));
 

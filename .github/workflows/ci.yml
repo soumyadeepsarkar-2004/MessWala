@@ -96,6 +96,9 @@ jobs:
       - name: Run tests
         working-directory: frontend
         run: npm run test:coverage
+        env:
+          CI: true
+          NODE_ENV: test
 
       - name: Build
         working-directory: frontend

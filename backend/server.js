@@ -59,20 +59,24 @@ app.use(
         scriptSrc: [
           "'self'",
           "'unsafe-inline'",
-          "'unsafe-eval'",
           'https://cdn.jsdelivr.net',
           'https://recharts.org',
+          'https://www.google.com/recaptcha/',
+          'https://www.gstatic.com/recaptcha/',
         ],
         styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
-        fontSrc: ["'self'", 'https://fonts.gstatic.com'],
-        imgSrc: ["'self'", 'data:', 'https:', 'http:'],
+        fontSrc: ["'self'", 'https://fonts.gstatic.com', 'data:'],
+        imgSrc: ["'self'", 'data:', 'https:', 'http:', 'blob:'],
         connectSrc: [
           "'self'",
           'https://www.google.com',
           'https://www.gstatic.com',
-          process.env.FRONTEND_URL || '',
+          process.env.FRONTEND_URL || '*',
+          'https://api.render.com',
         ],
         frameSrc: ["'self'", 'https://www.google.com'],
+        objectSrc: ["'none'"],
+        upgradeInsecureRequests: [],
       },
     },
     hsts: {
@@ -83,6 +87,7 @@ app.use(
     frameGuard: { action: 'deny' },
     noSniff: true,
     xssFilter: true,
+    referrerPolicy: { policy: 'same-origin' },
   }),
 );
 

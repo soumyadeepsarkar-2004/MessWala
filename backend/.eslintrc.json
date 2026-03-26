@@ -14,8 +14,18 @@
     "linebreak-style": "off",
     "quotes": "off",
     "semi": ["error", "always"],
-    "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
-    "no-console": ["warn", { "allow": ["warn", "error"] }],
+    "no-unused-vars": [
+      "warn",
+      {
+        "argsIgnorePattern": "^_"
+      }
+    ],
+    "no-console": [
+      "warn",
+      {
+        "allow": ["warn", "error"]
+      }
+    ],
     "eqeqeq": ["error", "always"],
     "curly": ["error", "all"],
     "no-var": "error",

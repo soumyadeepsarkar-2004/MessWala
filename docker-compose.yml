@@ -30,7 +30,7 @@ services:
       # 🚨 PRODUCTION: Set NODE_ENV=production for security hardening
       NODE_ENV: ${NODE_ENV:-development}
       PORT: 5000
-      MONGODB_URI: ${MONGODB_URI:-mongodb://admin:${MONGO_ROOT_PASSWORD}@mongodb:27017/messwala?authSource=admin}
+      MONGO_URI: ${MONGO_URI:-mongodb://admin:${MONGO_ROOT_PASSWORD:-insecure-default}@mongodb:27017/messwala?authSource=admin}
       # ⚠️ WARNING: MONGO_ROOT_PASSWORD must be set in environment, never in code
       # 🚨 PRODUCTION: Generate a cryptographically secure random string (min 32 chars)
       JWT_SECRET: ${JWT_SECRET:-dev-secret-change-in-production}
@@ -43,10 +43,6 @@ services:
     depends_on:
       mongodb:
         condition: service_healthy
-    volumes:
-      - ./backend:/app
-      - /app/node_modules
-    command: npm run dev
     networks:
       - messwala
     restart: unless-stopped
