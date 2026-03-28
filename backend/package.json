@@ -14,7 +14,17 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "health:check": "curl -s http://localhost:5000/api/health | jq .",
+    "health:summary": "curl -s http://localhost:5000/api/admin/health-summary | jq .",
+    "cache:stats": "curl -s http://localhost:5000/api/admin/cache/stats | jq .",
+    "cache:clear": "curl -X POST -s http://localhost:5000/api/admin/cache/clear | jq .",
+    "jobs:status": "curl -s http://localhost:5000/api/admin/jobs/status | jq .",
+    "jobs:clear-failed": "curl -X POST -s http://localhost:5000/api/admin/jobs/clear-failed | jq .",
+    "docs:generate": "node -e \"const { APIDocGenerator } = require('./src/utils/apiDocGenerator'); const gen = new APIDocGenerator(); console.log(JSON.stringify(gen.generateOpenAPI(), null, 2))\"",
+    "docs:html": "node -e \"const { APIDocGenerator } = require('./src/utils/apiDocGenerator'); const gen = new APIDocGenerator(); require('fs').writeFileSync('./api-docs.html', gen.generateHTML())\" && echo 'API docs generated in api-docs.html'",
+    "backup:create": "curl -X POST -s http://localhost:5000/api/admin/backup | jq .",
+    "backup:list": "curl -s http://localhost:5000/api/admin/backups | jq ."
   },
   "keywords": [
     "hostel",

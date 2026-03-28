@@ -13,6 +13,13 @@ const { detectApiVersion, checkVersionCompatibility } = require('./src/utils/ver
 const { initializeIndexes, performanceMonitor } = require('./src/utils/database');
 const { backupManager, schedulePeriodicBackups } = require('./src/utils/backup');
 
+// Import scalability & automation utilities
+const { cacheManager, cacheMiddleware } = require('./src/utils/cache');
+const { monitoringSystem } = require('./src/utils/monitoring');
+const { IntelligentRateLimiter } = require('./src/utils/intelligentRateLimiter');
+const { jobQueue } = require('./src/utils/jobQueue');
+const { APIDocGenerator } = require('./src/utils/apiDocGenerator');
+
 const logger = getLogger('Server');
 const app = express();
 
@@ -105,6 +112,15 @@ app.use(performanceMonitoringMiddleware);
 app.use(detectApiVersion);
 app.use(checkVersionCompatibility);
 
+// Intelligent rate limiting
+const intelligentRateLimiter = new IntelligentRateLimiter({
+  baseLimit: 100,
+  adaptiveThreshold: 0.8,
+});
+
+// Cache middleware for GET requests
+app.use(cacheMiddleware({ ttl: 300000 })); // 5 minutes
+
 // Rate limiting for auth routes
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -146,6 +162,79 @@ app.get('/api/metrics', (req, res) => {
     memory: process.memoryUsage(),
     performance: performanceMonitor.getMetrics(),
   });
+});
+
+// System health summary
+app.get('/api/admin/health-summary', (req, res) => {
+  res.json({
+    status: monitoringSystem.getHealthSummary(),
+    cache: cacheManager.getStats(),
+    jobQueue: jobQueue.getStatus(),
+    rateLimiter: intelligentRateLimiter.getAnalytics(),
+  });
+});
+
+// Cache management endpoints
+app.get('/api/admin/cache/stats', (req, res) => {
+  res.json({
+    stats: cacheManager.getStats(),
+  });
+});
+
+app.post('/api/admin/cache/clear', (req, res) => {
+  cacheManager.clear();
+  res.json({
+    success: true,
+    message: 'Cache cleared',
+  });
+});
+
+// Job queue monitoring
+app.get('/api/admin/jobs/status', (req, res) => {
+  res.json(jobQueue.getStatus());
+});
+
+app.post('/api/admin/jobs/clear-failed', (req, res) => {
+  jobQueue.clearFailed();
+  res.json({
+    success: true,
+    message: 'Failed jobs cleared',
+  });
+});
+
+// API documentation setup
+const apiDocGenerator = new APIDocGenerator({
+  title: 'MessWala API',
+  version: '2.0.0',
+  baseUrl: process.env.FRONTEND_URL || 'https://api.messwala.com',
+});
+
+// Register API endpoints for documentation
+apiDocGenerator.registerEndpoint({
+  method: 'GET',
+  path: '/api/health',
+  summary: 'Health Check',
+  description: 'Check API and database health status',
+  tags: ['System'],
+  responses: {
+    200: { description: 'Service is healthy' },
+    500: { description: 'Service is degraded' },
+  },
+});
+
+// API documentation endpoints
+app.get('/api/docs.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(apiDocGenerator.generateOpenAPI());
+});
+
+app.get('/api/docs', (req, res) => {
+  res.setHeader('Content-Type', 'text/html');
+  res.send(apiDocGenerator.generateHTML());
+});
+
+app.get('/api/docs/stats', (req, res) => {
+  res.json(apiDocGenerator.getStats());
 });
 
 // API documentation endpoint
