@@ -3,8 +3,6 @@
  * Auto-generates OpenAPI/Swagger documentation from routes
  */
 
-const fs = require('fs');
-const path = require('path');
 const { getLogger } = require('./logger');
 
 const logger = getLogger('APIDoc');
@@ -57,7 +55,6 @@ class APIDocGenerator {
    * Generate OpenAPI 3.0 specification
    */
   generateOpenAPI() {
-    const pathsObject = {};
 
     // Group endpoints by path
     const pathMap = new Map();
@@ -114,7 +111,6 @@ class APIDocGenerator {
    * Generate HTML documentation (Swagger UI style)
    */
   generateHTML() {
-    const openapi = this.generateOpenAPI();
 
     return `
 <!DOCTYPE html>

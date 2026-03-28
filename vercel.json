@@ -1,18 +1,9 @@
 {
     "version": 2,
-    "installCommand": "cd frontend && npm install && cd ../backend && npm install",
-    "buildCommand": "cd frontend && npm run build",
+    "installCommand": "npm install --prefix frontend",
+    "buildCommand": "npm run build --prefix frontend",
     "outputDirectory": "frontend/dist",
-    "functions": {
-        "api/index.js": {
-            "maxDuration": 30
-        }
-    },
     "routes": [
-        {
-            "src": "/api/(.*)",
-            "dest": "/api/index.js"
-        },
         {
             "src": "/assets/(.*)",
             "headers": {

@@ -42,7 +42,6 @@ class IntelligentRateLimiter {
     // Get endpoint configuration
     const config = this.getEndpointConfig(endpoint);
     const limit = Math.floor(config.limit * (userState.trustScore / 100));
-    const burstLimit = Math.floor(limit * this.burstAllowance);
 
     const allowed = userState.requests.length < limit;
     const nearLimit = userState.requests.length > limit * this.adaptiveThreshold;
@@ -96,7 +95,7 @@ class IntelligentRateLimiter {
   /**
    * Get intelligent recommendation for throttled requests
    */
-  getRecommendation(userState, endpoint) {
+  getRecommendation(userState, _endpoint) {
     const trustScore = userState.trustScore;
 
     if (trustScore < 30) {

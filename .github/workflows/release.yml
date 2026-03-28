@@ -6,7 +6,6 @@ on:
     paths:
       - 'backend/package.json'
       - 'frontend/package.json'
-      - 'CHANGELOG.md'
 
 permissions:
   contents: write
