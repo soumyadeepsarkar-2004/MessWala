@@ -55,7 +55,6 @@ class APIDocGenerator {
    * Generate OpenAPI 3.0 specification
    */
   generateOpenAPI() {
-
     // Group endpoints by path
     const pathMap = new Map();
     for (const [, endpoint] of this.routes) {
@@ -111,7 +110,6 @@ class APIDocGenerator {
    * Generate HTML documentation (Swagger UI style)
    */
   generateHTML() {
-
     return `
 <!DOCTYPE html>
 <html>
@@ -202,13 +200,19 @@ class APIDocGenerator {
                 ${
                   endpoint.parameters.length > 0
                     ? `<div class="parameters"><strong>Parameters:</strong>${endpoint.parameters
-                        .map((p) => `<div class="param"><span class="param-name">${p.name}</span> <span class="param-type">${p.in}</span></div>`)
+                        .map(
+                          (p) =>
+                            `<div class="param"><span class="param-name">${p.name}</span> <span class="param-type">${p.in}</span></div>`,
+                        )
                         .join('')}</div>`
                     : ''
                 }
                 <div class="responses"><strong>Responses:</strong>
                     ${Object.entries(endpoint.responses)
-                      .map(([code, desc]) => `<div class="response-code">${code}: ${desc.description}</div>`)
+                      .map(
+                        ([code, desc]) =>
+                          `<div class="response-code">${code}: ${desc.description}</div>`,
+                      )
                       .join('')}
                 </div>
             </div>

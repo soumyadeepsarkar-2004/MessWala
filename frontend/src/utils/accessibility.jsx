@@ -121,31 +121,22 @@ export const AccessibleModal = ({
   return (
     <>
       {/* Backdrop */}
-      <div
-        className="modal-backdrop"
-        onClick={onClose}
-        role="presentation"
-        aria-hidden="true"
-      />
+      <div className='modal-backdrop' onClick={onClose} role='presentation' aria-hidden='true' />
       {/* Modal */}
       <div
         role={role}
-        aria-modal="true"
-        aria-labelledby="modal-title"
-        className="modal-content"
+        aria-modal='true'
+        aria-labelledby='modal-title'
+        className='modal-content'
         {...props}
       >
-        <div className="modal-header">
-          <h2 id="modal-title">{title}</h2>
-          <button
-            className="modal-close"
-            onClick={onClose}
-            aria-label="Close modal"
-          >
+        <div className='modal-header'>
+          <h2 id='modal-title'>{title}</h2>
+          <button className='modal-close' onClick={onClose} aria-label='Close modal'>
             ✕
           </button>
         </div>
-        <div className="modal-body">{children}</div>
+        <div className='modal-body'>{children}</div>
       </div>
     </>
   );
@@ -176,9 +167,7 @@ export const AccessibleForm = ({ onSubmit, children, ...props }) => {
 
   return (
     <form onSubmit={handleSubmit} noValidate {...props}>
-      {React.Children.map(children, (child) =>
-        React.cloneElement(child, { errors }),
-      )}
+      {React.Children.map(children, (child) => React.cloneElement(child, { errors }))}
     </form>
   );
 };
@@ -201,13 +190,13 @@ export const AccessibleFormField = ({
   const hasError = errors[name];
 
   return (
-    <div className="form-group">
-      <label htmlFor={fieldId} className="form-label">
+    <div className='form-group'>
+      <label htmlFor={fieldId} className='form-label'>
         {label}
-        {required && <span aria-label="required">*</span>}
+        {required && <span aria-label='required'>*</span>}
       </label>
       {description && (
-        <div id={descriptionId} className="form-description">
+        <div id={descriptionId} className='form-description'>
           {description}
         </div>
       )}
@@ -223,7 +212,7 @@ export const AccessibleFormField = ({
         {...props}
       />
       {hasError && (
-        <div id={errorId} className="form-error" role="alert">
+        <div id={errorId} className='form-error' role='alert'>
           {Array.isArray(hasError) ? hasError.join(', ') : hasError}
         </div>
       )}
@@ -236,11 +225,7 @@ export const AccessibleFormField = ({
  */
 export const SkipToMainContent = () => {
   return (
-    <a
-      href="#main-content"
-      className="skip-to-main"
-      tabIndex="0"
-    >
+    <a href='#main-content' className='skip-to-main' tabIndex='0'>
       Skip to main content
     </a>
   );
