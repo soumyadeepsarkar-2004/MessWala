@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Joyride, STATUS } from 'react-joyride';
+import * as JoyrideModule from 'react-joyride';
+const Joyride = (JoyrideModule.default || JoyrideModule.Joyride || JoyrideModule).default || (JoyrideModule.default || JoyrideModule.Joyride || JoyrideModule);
+const { STATUS } = JoyrideModule;
 import { useAuth } from '../context/AuthContext';
 
 export default function OnboardingTour() {
