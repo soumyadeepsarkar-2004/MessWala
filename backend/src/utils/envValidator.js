@@ -190,9 +190,7 @@ function validateEnvironment() {
 
       // Min length validation
       if (schema.minLength && value.length < schema.minLength) {
-        errors.push(
-          `${key} is too short: minimum ${schema.minLength} characters required`,
-        );
+        errors.push(`${key} is too short: minimum ${schema.minLength} characters required`);
         continue;
       }
 
@@ -209,9 +207,7 @@ function validateEnvironment() {
 
     // Check for secure JWT secret
     if (config.JWT_SECRET && config.JWT_SECRET.length < 64) {
-      warnings.push(
-        'JWT_SECRET should be longer than 64 characters for production security',
-      );
+      warnings.push('JWT_SECRET should be longer than 64 characters for production security');
     }
 
     // Warn if notification services not configured

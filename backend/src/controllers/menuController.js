@@ -230,9 +230,7 @@ exports.getMenu = async (req, res) => {
       };
     }
 
-    const menus = await Menu.find(filter)
-      .sort({ date: 1 })
-      .populate('setBy', 'name email');
+    const menus = await Menu.find(filter).sort({ date: 1 }).populate('setBy', 'name email');
 
     res.json({
       success: true,
@@ -294,4 +292,3 @@ exports.deleteMenu = async (req, res) => {
     res.status(500).json({ success: false, error: err.message });
   }
 };
-

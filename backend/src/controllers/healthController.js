@@ -34,11 +34,10 @@ exports.getHealthStatus = async (req, res) => {
       jwtConfigured: !!process.env.JWT_SECRET,
       mongoConfigured: !!process.env.MONGO_URI,
       frontendUrlConfigured: !!process.env.FRONTEND_URL,
-      notificationConfigured:
-        !!(
-          (process.env.SMTP_EMAIL && process.env.SMTP_PASSWORD) ||
-          (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN)
-        ),
+      notificationConfigured: !!(
+        (process.env.SMTP_EMAIL && process.env.SMTP_PASSWORD) ||
+        (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN)
+      ),
     };
 
     health.checks.environment = envChecks;
@@ -46,9 +45,7 @@ exports.getHealthStatus = async (req, res) => {
     // Check required services
     health.checks.services = {
       email: {
-        configured: !!(
-          process.env.SMTP_EMAIL && process.env.SMTP_PASSWORD
-        ),
+        configured: !!(process.env.SMTP_EMAIL && process.env.SMTP_PASSWORD),
         status: process.env.SMTP_EMAIL ? 'available' : 'not-configured',
       },
       whatsapp: {
@@ -70,8 +67,7 @@ exports.getHealthStatus = async (req, res) => {
       uptime: process.uptime(),
       memory: {
         heapUsed: Math.round(process.memoryUsage().heapUsed / 1024 / 1024) + 'MB',
-        heapTotal:
-          Math.round(process.memoryUsage().heapTotal / 1024 / 1024) + 'MB',
+        heapTotal: Math.round(process.memoryUsage().heapTotal / 1024 / 1024) + 'MB',
       },
     };
 
@@ -154,11 +150,8 @@ exports.getDeploymentStatus = async (req, res) => {
         required: {
           jwtSecret: {
             configured: !!process.env.JWT_SECRET,
-            secure: process.env.JWT_SECRET
-              ? process.env.JWT_SECRET.length >= 32
-              : false,
-            recommendation:
-              'Minimum 64 characters for production security',
+            secure: process.env.JWT_SECRET ? process.env.JWT_SECRET.length >= 32 : false,
+            recommendation: 'Minimum 64 characters for production security',
           },
           mongoUri: {
             configured: !!process.env.MONGO_URI,
@@ -167,19 +160,13 @@ exports.getDeploymentStatus = async (req, res) => {
           frontendUrl: {
             configured: !!process.env.FRONTEND_URL,
             isHttps: process.env.FRONTEND_URL?.startsWith('https://'),
-            recommendation:
-              'Must use HTTPS in production for security',
+            recommendation: 'Must use HTTPS in production for security',
           },
         },
         optional: {
           emailNotifications: {
-            configured: !!(
-              process.env.SMTP_EMAIL && process.env.SMTP_PASSWORD
-            ),
-            status:
-              process.env.SMTP_EMAIL && process.env.SMTP_PASSWORD
-                ? 'enabled'
-                : 'disabled',
+            configured: !!(process.env.SMTP_EMAIL && process.env.SMTP_PASSWORD),
+            status: process.env.SMTP_EMAIL && process.env.SMTP_PASSWORD ? 'enabled' : 'disabled',
           },
           whatsappNotifications: {
             configured: !!(
@@ -202,29 +189,24 @@ exports.getDeploymentStatus = async (req, res) => {
           database: {
             connected: mongoose.connection.readyState === 1,
             readyState: mongoose.connection.readyState,
-            description:
-              ['disconnected', 'connected', 'connecting', 'disconnecting'][
-                mongoose.connection.readyState
-              ],
+            description: ['disconnected', 'connected', 'connecting', 'disconnecting'][
+              mongoose.connection.readyState
+            ],
           },
         },
       },
     };
 
     // Determine overall status
-    const allRequiredConfigured = Object.values(
-      status.checks.required,
-    ).every((check) => check.configured);
+    const allRequiredConfigured = Object.values(status.checks.required).every(
+      (check) => check.configured,
+    );
 
     const isProduction = process.env.NODE_ENV === 'production';
-    const hasSecureJwt =
-      status.checks.required.jwtSecret.secure ||
-      !isProduction;
+    const hasSecureJwt = status.checks.required.jwtSecret.secure || !isProduction;
 
     status.ready =
-      allRequiredConfigured &&
-      status.checks.critical.database.connected &&
-      hasSecureJwt;
+      allRequiredConfigured && status.checks.critical.database.connected && hasSecureJwt;
 
     // Generate recommendations
     status.recommendations = [];
@@ -233,10 +215,7 @@ exports.getDeploymentStatus = async (req, res) => {
       status.recommendations.push('Use HTTPS for FRONTEND_URL in production');
     }
 
-    if (
-      isProduction &&
-      !status.checks.required.jwtSecret.secure
-    ) {
+    if (isProduction && !status.checks.required.jwtSecret.secure) {
       status.recommendations.push(
         'Increase JWT_SECRET length to at least 64 characters for production',
       );

@@ -228,9 +228,7 @@ describeIntegration('Role-Based Dynamic Configuration System', () => {
         .send(mealTime);
 
       expect(res.status).toBe(200);
-      expect(res.body.config.mealTimes).toContainEqual(
-        expect.objectContaining({ type: 'snack' }),
-      );
+      expect(res.body.config.mealTimes).toContainEqual(expect.objectContaining({ type: 'snack' }));
     });
 
     test('Cannot add duplicate meal type', async () => {

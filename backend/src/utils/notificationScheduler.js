@@ -120,8 +120,7 @@ class NotificationScheduler {
           present: true,
         });
 
-        const costPerPlate =
-          mealsServed > 0 ? (totalExpense / mealsServed).toFixed(2) : 0;
+        const costPerPlate = mealsServed > 0 ? (totalExpense / mealsServed).toFixed(2) : 0;
 
         await notificationService.sendCostSummary(user, {
           month,
@@ -197,8 +196,7 @@ class NotificationScheduler {
           present: true,
         });
 
-        const userShare =
-          mealsServed > 0 ? totalSpent / mealsServed : 0;
+        const userShare = mealsServed > 0 ? totalSpent / mealsServed : 0;
         const percentage = Math.round((userShare / baseBudget) * 100);
 
         if (percentage > 80) {

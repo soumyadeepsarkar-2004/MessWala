@@ -27,7 +27,8 @@ export default function DashboardPage() {
     const checkManagerStatus = async () => {
       try {
         // User is manager if they have admin or manager role
-        const isAdminOrManager = user?.role === 'admin' || user?.role === 'manager' || user?.role === 'co-admin';
+        const isAdminOrManager =
+          user?.role === 'admin' || user?.role === 'manager' || user?.role === 'co-admin';
         setIsManager(isAdminOrManager);
 
         // If manager, fetch configuration status
@@ -171,17 +172,23 @@ export default function DashboardPage() {
                 <HiOutlineCog className='w-6 h-6 text-white' />
               </div>
               <div>
-                <h2 className='text-lg font-bold text-gray-900 dark:text-white'>Configuration Management</h2>
+                <h2 className='text-lg font-bold text-gray-900 dark:text-white'>
+                  Configuration Management
+                </h2>
                 <p className='text-sm text-gray-500 dark:text-gray-400 mt-1'>
                   {configStatus?.isSetup ? (
                     <>
-                      <span className='text-emerald-600 dark:text-emerald-400 font-medium'>✓ Configured</span>
-                      {' '}— Update meal times, expense categories, and other mess settings
+                      <span className='text-emerald-600 dark:text-emerald-400 font-medium'>
+                        ✓ Configured
+                      </span>{' '}
+                      — Update meal times, expense categories, and other mess settings
                     </>
                   ) : (
                     <>
-                      <span className='text-amber-600 dark:text-amber-400 font-medium'>⚠ Not Configured</span>
-                      {' '}— Set up your mess configuration before managing operations
+                      <span className='text-amber-600 dark:text-amber-400 font-medium'>
+                        ⚠ Not Configured
+                      </span>{' '}
+                      — Set up your mess configuration before managing operations
                     </>
                   )}
                 </p>
@@ -246,8 +253,8 @@ export default function DashboardPage() {
                     className='text-primary-500 font-medium hover:underline'
                   >
                     Configure meal times
-                  </button>
-                  {' '}to set up the menu.
+                  </button>{' '}
+                  to set up the menu.
                 </>
               ) : (
                 'Menu not yet set for today. Please check back later.'

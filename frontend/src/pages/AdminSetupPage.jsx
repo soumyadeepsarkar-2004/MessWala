@@ -116,7 +116,10 @@ export default function AdminSetupPage() {
       return;
     }
 
-    setExpenseCategories([...expenseCategories, { ...newCategory, value: newCategory.value.trim() }]);
+    setExpenseCategories([
+      ...expenseCategories,
+      { ...newCategory, value: newCategory.value.trim() },
+    ]);
     setNewCategory({
       value: '',
       label: '',

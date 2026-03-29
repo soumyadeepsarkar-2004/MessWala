@@ -130,7 +130,15 @@ exports.setupConfig = async (req, res) => {
     config.messPhone = (messPhone || '').trim();
     config.mealTimes = processedMealTimes;
     config.expenseCategories = processedCategories;
-    config.menuDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    config.menuDays = [
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+      'Sunday',
+    ];
     config.isSetup = true;
     config.setupCompletedAt = new Date();
     config.setupCompletedBy = req.user.id;

@@ -20,10 +20,7 @@ class NotificationService {
     if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN) {
       try {
         const twilio = require('twilio');
-        this.whatsappClient = twilio(
-          process.env.TWILIO_ACCOUNT_SID,
-          process.env.TWILIO_AUTH_TOKEN,
-        );
+        this.whatsappClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
       } catch (err) {
         logger.warn('Twilio not available. WhatsApp notifications disabled.');
       }
@@ -302,7 +299,8 @@ class NotificationService {
         success: anyChannelSucceeded,
         notification,
         results,
-        fallbackUsed: !anyChannelSucceeded || Object.values(results).some((r) => r.includes('fallback')),
+        fallbackUsed:
+          !anyChannelSucceeded || Object.values(results).some((r) => r.includes('fallback')),
       };
     } catch (err) {
       logger.error('Notification send error', err);
@@ -450,16 +448,13 @@ class NotificationService {
 
     for (const notification of failedNotifications) {
       try {
-        const result = await this.sendNotification(
-          notification.userId,
-          {
-            type: notification.type,
-            channel: notification.channel,
-            title: notification.title,
-            content: notification.content,
-            metadata: notification.metadata,
-          },
-        );
+        const result = await this.sendNotification(notification.userId, {
+          type: notification.type,
+          channel: notification.channel,
+          title: notification.title,
+          content: notification.content,
+          metadata: notification.metadata,
+        });
 
         if (result.success) {
           await Notification.findByIdAndUpdate(notification._id, {

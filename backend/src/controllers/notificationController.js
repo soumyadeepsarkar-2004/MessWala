@@ -4,9 +4,7 @@ const User = require('../models/User');
 
 exports.getUnreadNotifications = async (req, res) => {
   try {
-    const notifications = await notificationService.getUnreadNotifications(
-      req.user.id,
-    );
+    const notifications = await notificationService.getUnreadNotifications(req.user.id);
     res.json({ success: true, count: notifications.length, notifications });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
@@ -140,8 +138,7 @@ exports.checkConfiguration = async (req, res) => {
         email: process.env.SMTP_EMAIL ? process.env.SMTP_EMAIL.substring(0, 5) + '***' : 'NOT SET',
       },
       twilio: {
-        configured:
-          !!process.env.TWILIO_ACCOUNT_SID && !!process.env.TWILIO_AUTH_TOKEN,
+        configured: !!process.env.TWILIO_ACCOUNT_SID && !!process.env.TWILIO_AUTH_TOKEN,
         accountSid: process.env.TWILIO_ACCOUNT_SID
           ? process.env.TWILIO_ACCOUNT_SID.substring(0, 4) + '***'
           : 'NOT SET',

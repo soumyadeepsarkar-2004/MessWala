@@ -37,20 +37,14 @@ function securityHeadersMiddleware(req, res, next) {
 
   // Strict Transport Security
   if (process.env.NODE_ENV === 'production') {
-    res.setHeader(
-      'Strict-Transport-Security',
-      'max-age=31536000; includeSubDomains; preload',
-    );
+    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
   }
 
   // Referrer Policy
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
 
   // Permissions Policy (formerly Feature Policy)
-  res.setHeader(
-    'Permissions-Policy',
-    'geolocation=(), microphone=(), camera=(), payment=()',
-  );
+  res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=(), payment=()');
 
   next();
 }
@@ -90,13 +84,7 @@ function requestSizeLimitMiddleware(req, res, next) {
  */
 function inputValidationMiddleware(req, res, next) {
   // Check for suspicious patterns in user input
-  const suspiciousPatterns = [
-    /eval\(/i,
-    /script/i,
-    /onclick/i,
-    /onerror/i,
-    /javascript:/i,
-  ];
+  const suspiciousPatterns = [/eval\(/i, /script/i, /onclick/i, /onerror/i, /javascript:/i];
 
   const checkValue = (value) => {
     if (typeof value === 'string') {
@@ -204,13 +192,7 @@ function environmentSecurityMiddleware(req, res, next) {
     // Additional production-only checks
 
     // Block access to sensitive paths
-    const sensitivePatterns = [
-      /\.env/,
-      /admin\/debug/,
-      /internal\//,
-      /\.git\//,
-      /backup\//,
-    ];
+    const sensitivePatterns = [/\.env/, /admin\/debug/, /internal\//, /\.git\//, /backup\//];
 
     if (sensitivePatterns.some((pattern) => pattern.test(req.path))) {
       logger.warn('Attempt to access sensitive path', {
