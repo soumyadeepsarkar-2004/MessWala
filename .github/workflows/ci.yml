@@ -23,7 +23,7 @@ jobs:
           MONGO_INITDB_ROOT_USERNAME: admin
           MONGO_INITDB_ROOT_PASSWORD: password
         options: >-
-          --health-cmd "echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet"
+          --health-cmd "mongosh admin --username admin --password password --eval \"db.runCommand({ping:1})\" --quiet"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -95,7 +95,7 @@ jobs:
 
       - name: Run tests
         working-directory: frontend
-        run: npm run test:coverage
+        run: npx vitest run
         env:
           CI: true
           NODE_ENV: test
