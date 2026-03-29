@@ -75,15 +75,32 @@ exports.setupConfig = async (req, res) => {
     }
 
     // Verify user is hostel admin
-    const hostel = await Hostel.findOne({
+    let hostel = await Hostel.findOne({
       $or: [{ admin: req.user.id }, { coAdmins: req.user.id }],
     });
 
     if (!hostel) {
-      return res.status(403).json({
-        success: false,
-        error: 'You are not authorized to setup configuration',
-      });
+      if (['admin', 'manager'].includes(req.user.role)) {
+        // Auto-create a default hostel for the admin
+        hostel = new Hostel({
+          name: messName.trim(),
+          code: 'MESS_' + Math.floor(1000 + Math.random() * 9000),
+          admin: req.user.id,
+        });
+        await hostel.save();
+
+        // Link hostel to user
+        const User = require('../models/User');
+        await User.findByIdAndUpdate(req.user.id, {
+          $push: { hostels: hostel._id },
+          hostel: hostel._id,
+        });
+      } else {
+        return res.status(403).json({
+          success: false,
+          error: 'You are not authorized to setup configuration',
+        });
+      }
     }
 
     // Check if config already exists
