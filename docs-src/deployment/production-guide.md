@@ -96,7 +96,7 @@ git push origin main
 1. Go to [mongoatlas.com](https://mongoatlas.com)
 2. Create free cluster
 3. Create database user
-4. Get connection string: `mongodb+srv://user:pass@cluster.mongodb.net/messwala`
+4. Get connection string: `mongodb+srv://<USERNAME>:<PASSWORD>@<YOUR_CLUSTER>.mongodb.net/messwala`
 5. Enable Network Access for Render IP (or use `0.0.0.0/0` for development)
 
 #### Step 4: Deploy Backend Service
@@ -113,7 +113,7 @@ git push origin main
 4. Add environment variables:
    ```
    NODE_ENV=production
-   MONGO_URI=mongodb+srv://user:pass@cluster.mongodb.net/messwala
+   MONGO_URI=mongodb+srv://<USERNAME>:<PASSWORD>@<YOUR_CLUSTER>.mongodb.net/messwala
    JWT_SECRET=<YOUR_64_CHAR_SECRET>
    FRONTEND_URL=https://your-frontend-domain.vercel.app
    SMTP_EMAIL=your-email@gmail.com
@@ -341,7 +341,7 @@ curl https://your-backend-domain.com/api/health
 **Solution:**
 ```bash
 # Test MongoDB URI locally
-mongosh "mongodb+srv://user:pass@cluster.mongodb.net/messwala"
+mongosh "mongodb+srv://<USERNAME>:<PASSWORD>@<YOUR_CLUSTER>.mongodb.net/messwala"
 
 # Check IP whitelist in MongoDB Atlas
 # Ensure application IP is whitelisted
