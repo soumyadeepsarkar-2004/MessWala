@@ -1,0 +1,89 @@
+site_name: MessWala Documentation
+site_description: Complete documentation for MessWala mess management system
+site_author: Soumyadeep Sarkar
+site_url: https://docs.messwala.com
+repo_url: https://github.com/soumyadeepsarkar-2004/MessWala
+repo_name: MessWala
+edit_uri: edit/main/docs/
+docs_dir: .
+site_dir: site
+
+theme:
+  name: material
+  palette:
+    - scheme: light
+      primary: blue
+      accent: blue
+    - scheme: dark
+      primary: blue
+      accent: blue
+  logo: assets/logo.png
+  favicon: assets/favicon.ico
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.top
+    - content.tabs.link
+    - content.code.copy
+    - search.suggest
+    - search.highlight
+
+plugins:
+  - search:
+      lang: en
+  - minify:
+      minify_html: true
+      minify_css: true
+      minify_js: true
+
+markdown_extensions:
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - admonition
+  - pymdownx.details
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - footnotes
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Getting Started:
+      - Quick Start: guides/getting-started.md
+      - User Roles: guides/user-roles.md
+      - Features: guides/features.md
+  - API Documentation:
+      - Endpoints: api/endpoints.md
+      - Authentication: api/authentication.md
+  - Architecture:
+      - System Overview: architecture/system-overview.md
+  - Deployment:
+      - Setup Guide: deployment/setup.md
+      - Troubleshooting: deployment/troubleshooting.md
+  - Admin Guide:
+      - Setup Wizard: admin/setup-wizard.md
+      - User Management: admin/user-management.md
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/soumyadeepsarkar-2004/MessWala
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com
+    - icon: fontawesome/brands/linkedin
+      link: https://linkedin.com
+
+copyright: |
+  &copy; 2026 MessWala. All rights reserved.
+  <a href="https://github.com/soumyadeepsarkar-2004/MessWala/blob/main/LICENSE">License</a>
