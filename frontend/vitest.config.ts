@@ -12,8 +12,10 @@ export default defineConfig({
       exclude: ['node_modules/', 'src/__tests__/'],
     },
     include: ['src/**/*.{test,spec}.{js,jsx,ts,tsx}'],
-    deps: {
-      inline: ['react-joyride'],
+    server: {
+      deps: {
+        inline: ['react-joyride'],
+      },
     },
   },
   ssr: {
