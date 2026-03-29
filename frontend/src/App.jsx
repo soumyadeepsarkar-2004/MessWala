@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import { useConfig } from './context/ConfigContext';
 import Navbar from './components/Navbar';
+import OnboardingTour from './components/OnboardingTour';
 
 // Lazy-loaded pages
 const AdminSetupPage = lazy(() => import('./pages/AdminSetupPage'));
@@ -65,6 +66,7 @@ export default function App() {
   return (
     <div className='min-h-screen bg-gray-50 dark:bg-dark-950 transition-colors duration-300'>
       {showNavbar && <Navbar />}
+      {user && showNavbar && <OnboardingTour />}
       <main className={showNavbar ? 'pt-16' : ''}>
         <Suspense fallback={<PageLoadingFallback />}>
           <Routes>

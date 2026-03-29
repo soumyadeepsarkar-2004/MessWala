@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-export const API_BASE_URL = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? '/api' : 'https://messwala-6jvj.onrender.com/api');
+export const API_BASE_URL =
+  import.meta.env.VITE_API_URL ||
+  (window.location.hostname === 'localhost' ? '/api' : 'https://messwala-6jvj.onrender.com/api');
 
 const api = axios.create({
   baseURL: API_BASE_URL,
