@@ -73,6 +73,20 @@ const userSchema = new mongoose.Schema(
       type: Date,
       select: false,
     },
+    preferredNotificationChannel: {
+      type: String,
+      enum: ['email', 'whatsapp', 'both'],
+      default: 'email',
+    },
+    notificationPreferences: {
+      mealReminders: { type: Boolean, default: true },
+      paymentDue: { type: Boolean, default: true },
+      monthlySummary: { type: Boolean, default: true },
+      discrepancyAlerts: { type: Boolean, default: true },
+      mealUpdates: { type: Boolean, default: false },
+      expenseAdded: { type: Boolean, default: false },
+      budgetExceeded: { type: Boolean, default: true },
+    },
   },
   {
     timestamps: true,

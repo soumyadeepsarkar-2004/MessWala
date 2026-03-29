@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import {
   HiOutlineUserGroup,
@@ -8,14 +9,41 @@ import {
   HiOutlineStar,
   HiOutlineCalendar,
   HiOutlineTrendingUp,
+  HiOutlineCog,
 } from 'react-icons/hi';
 import TaskListWidget from '../components/TaskListWidget';
 
 export default function DashboardPage() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [stats, setStats] = useState(null);
   const [menu, setMenu] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isManager, setIsManager] = useState(false);
+  const [configStatus, setConfigStatus] = useState(null);
+
+  // Check if user is manager/admin
+  useEffect(() => {
+    const checkManagerStatus = async () => {
+      try {
+        // User is manager if they have admin or manager role
+        const isAdminOrManager = user?.role === 'admin' || user?.role === 'manager' || user?.role === 'co-admin';
+        setIsManager(isAdminOrManager);
+
+        // If manager, fetch configuration status
+        if (isAdminOrManager) {
+          const statusRes = await api.get('/config/status');
+          setConfigStatus(statusRes.data);
+        }
+      } catch (err) {
+        console.error('Manager status check error:', err);
+      }
+    };
+
+    if (user) {
+      checkManagerStatus();
+    }
+  }, [user]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -93,8 +121,6 @@ export default function DashboardPage() {
     },
   ];
 
-  const mealEmoji = { breakfast: '🌅', lunch: '☀️', dinner: '🌙' };
-
   return (
     <div className='page-container'>
       {/* Welcome */}
@@ -133,6 +159,44 @@ export default function DashboardPage() {
         ))}
       </div>
 
+      {/* Configuration Management Card - Manager Only */}
+      {isManager && (
+        <div
+          className='glass-card-solid p-6 mb-8 animate-slide-up border-l-4 border-primary-500'
+          style={{ animationDelay: '200ms' }}
+        >
+          <div className='flex items-center justify-between'>
+            <div className='flex items-center gap-3'>
+              <div className='p-3 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 shadow-lg shadow-primary-500/20'>
+                <HiOutlineCog className='w-6 h-6 text-white' />
+              </div>
+              <div>
+                <h2 className='text-lg font-bold text-gray-900 dark:text-white'>Configuration Management</h2>
+                <p className='text-sm text-gray-500 dark:text-gray-400 mt-1'>
+                  {configStatus?.isSetup ? (
+                    <>
+                      <span className='text-emerald-600 dark:text-emerald-400 font-medium'>✓ Configured</span>
+                      {' '}— Update meal times, expense categories, and other mess settings
+                    </>
+                  ) : (
+                    <>
+                      <span className='text-amber-600 dark:text-amber-400 font-medium'>⚠ Not Configured</span>
+                      {' '}— Set up your mess configuration before managing operations
+                    </>
+                  )}
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() => navigate('/admin/setup')}
+              className='px-6 py-2 rounded-lg bg-gradient-to-r from-primary-500 to-primary-600 text-white font-medium hover:shadow-lg hover:shadow-primary-500/30 transition-all duration-300 hover:scale-105'
+            >
+              {configStatus?.isSetup ? 'Manage Settings' : 'Setup Now'}
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Today's Menu */}
       <div
         className='glass-card-solid p-6 mb-8 animate-slide-up'
@@ -142,24 +206,55 @@ export default function DashboardPage() {
           <HiOutlineCalendar className='w-5 h-5 text-primary-500' />
           <h2 className='text-lg font-bold text-gray-900 dark:text-white'>Today's Menu</h2>
         </div>
-        <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-          {['breakfast', 'lunch', 'dinner'].map((meal) => (
-            <div
-              key={meal}
-              className='p-4 rounded-xl bg-gray-50 dark:bg-dark-700/50 border border-gray-100 dark:border-dark-600'
-            >
-              <div className='flex items-center gap-2 mb-2'>
-                <span className='text-xl'>{mealEmoji[meal]}</span>
-                <h3 className='font-semibold text-gray-700 dark:text-gray-200 capitalize'>
-                  {meal}
-                </h3>
+        {menu && Array.isArray(menu.meals) && menu.meals.length > 0 ? (
+          <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+            {menu.meals.map((meal, idx) => (
+              <div
+                key={idx}
+                className='p-4 rounded-xl bg-gray-50 dark:bg-dark-700/50 border border-gray-100 dark:border-dark-600'
+              >
+                <div className='flex items-center gap-2 mb-2'>
+                  <span className='text-2xl'>{meal.emoji || '🍽️'}</span>
+                  <h3 className='font-semibold text-gray-700 dark:text-gray-200'>
+                    {meal.type || 'Meal'}
+                  </h3>
+                </div>
+                <p className='text-sm text-gray-600 dark:text-gray-300 mb-2'>
+                  {meal.content || 'Not set'}
+                </p>
+                {meal.notes && (
+                  <p className='text-xs text-gray-500 dark:text-gray-400 italic'>
+                    Note: {meal.notes}
+                  </p>
+                )}
+                {meal.allergy_warnings && (
+                  <p className='text-xs text-amber-600 dark:text-amber-400'>
+                    ⚠️ {meal.allergy_warnings}
+                  </p>
+                )}
               </div>
-              <p className='text-sm text-gray-500 dark:text-gray-400'>
-                {menu?.[meal] || 'Not set'}
-              </p>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className='text-center py-8'>
+            <p className='text-gray-500 dark:text-gray-400'>
+              {isManager ? (
+                <>
+                  No menu set for today.{' '}
+                  <button
+                    onClick={() => navigate('/admin/setup')}
+                    className='text-primary-500 font-medium hover:underline'
+                  >
+                    Configure meal times
+                  </button>
+                  {' '}to set up the menu.
+                </>
+              ) : (
+                'Menu not yet set for today. Please check back later.'
+              )}
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Lower Section (Transparency & Tasks) */}

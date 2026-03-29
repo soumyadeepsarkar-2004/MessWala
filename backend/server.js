@@ -144,6 +144,8 @@ const feedbackRoutes = require('./src/routes/feedbackRoutes');
 const menuRoutes = require('./src/routes/menuRoutes');
 const analyticsRoutes = require('./src/routes/analyticsRoutes');
 const taskRoutes = require('./src/routes/taskRoutes');
+const notificationRoutes = require('./src/routes/notificationRoutes');
+const configRoutes = require('./src/routes/configRoutes');
 
 // Root health check
 app.get('/', (req, res) => {
@@ -153,6 +155,66 @@ app.get('/', (req, res) => {
 // Detailed health check
 app.get('/api/health', (req, res) => {
   res.json(getHealthStatus());
+});
+
+// Readiness probe (for Kubernetes/Docker/orchestrators)
+// Returns 200 if service is ready to accept traffic
+app.get('/api/ready', (req, res) => {
+  const health = getHealthStatus();
+
+  // Service is ready if database is connected and healthy
+  if (health.database.status === 'connected' && health.overall === 'healthy') {
+    res.status(200).json({
+      ready: true,
+      timestamp: new Date().toISOString(),
+      checks: {
+        database: health.database.status,
+        service: health.overall,
+      },
+    });
+  } else {
+    res.status(503).json({
+      ready: false,
+      timestamp: new Date().toISOString(),
+      message: 'Service not ready',
+      checks: {
+        database: health.database.status,
+        service: health.overall,
+      },
+    });
+  }
+});
+
+// Liveness probe (for Kubernetes/Docker/orchestrators)
+// Returns 200 if service process is alive
+app.get('/api/live', (req, res) => {
+  res.status(200).json({
+    alive: true,
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// Deployment status endpoint
+// Shows deployment information and readiness
+app.get('/api/deployment-status', (req, res) => {
+  const health = getHealthStatus();
+  res.json({
+    deployed: true,
+    environment: process.env.NODE_ENV,
+    version: process.env.APP_VERSION || '2.0.0',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    status: {
+      health: health.overall,
+      database: health.database.status,
+      ready: health.database.status === 'connected' && health.overall === 'healthy',
+    },
+    buildInfo: {
+      node: process.version,
+      platform: process.platform,
+    },
+  });
 });
 
 // Metrics endpoint (monitoring)
@@ -289,6 +351,8 @@ app.use('/api/feedback', feedbackRoutes);
 app.use('/api/menu', menuRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/tasks', taskRoutes);
+app.use('/api/notifications', notificationRoutes);
+app.use('/api/config', configRoutes);
 
 // Error handling middleware (must come after all other middleware)
 app.use(errorLogger);
@@ -352,6 +416,15 @@ function connectDB() {
       // Schedule periodic backups
       if (process.env.BACKUP_ENABLED !== 'false') {
         schedulePeriodicBackups();
+      }
+
+      // Initialize notification scheduler
+      try {
+        // eslint-disable-next-line global-require
+        require('./src/utils/notificationScheduler');
+        logger.info('Notification scheduler initialized');
+      } catch (err) {
+        logger.warn('Failed to initialize notification scheduler', { error: err.message });
       }
 
       cachedConnection = conn;
