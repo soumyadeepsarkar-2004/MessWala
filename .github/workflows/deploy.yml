@@ -43,7 +43,7 @@ jobs:
 
       - name: Install MkDocs
         run: |
-          pip install mkdocs mkdocs-material mkdocs-minify-plugin mkdocs-search-plugin
+          pip install mkdocs mkdocs-material mkdocs-minify-plugin
 
       - name: Build docs
         run: mkdocs build
