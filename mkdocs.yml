@@ -58,13 +58,17 @@ nav:
       - Quick Start: guides/getting-started.md
       - User Roles: guides/user-roles.md
       - Features: guides/features.md
+      - Twilio Integration: guides/twilio-whatsapp-setup.md
   - API Documentation:
       - Endpoints: api/endpoints.md
       - Authentication: api/authentication.md
   - Architecture:
       - System Overview: architecture/system-overview.md
+      - Detailed Architecture: architecture/detailed-architecture.md
   - Deployment:
       - Setup Guide: deployment/setup.md
+      - Production Guide: deployment/production-guide.md
+      - Monitoring: deployment/monitoring.md
       - Troubleshooting: deployment/troubleshooting.md
   - Admin Guide:
       - Setup Wizard: admin/setup-wizard.md
