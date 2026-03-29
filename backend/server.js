@@ -24,7 +24,7 @@ const logger = getLogger('Server');
 const app = express();
 
 // CORS must be before helmet so preflight OPTIONS requests get proper headers
-const ALLOWED_ORIGINS = [];
+const ALLOWED_ORIGINS = ['https://mess-walah.vercel.app'];
 
 // Add frontend URL from environment (required in production)
 if (process.env.FRONTEND_URL) {
