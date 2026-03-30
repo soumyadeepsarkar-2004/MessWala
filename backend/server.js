@@ -19,8 +19,27 @@ const { monitoringSystem } = require('./src/utils/monitoring');
 const { IntelligentRateLimiter } = require('./src/utils/intelligentRateLimiter');
 const { jobQueue } = require('./src/utils/jobQueue');
 const { APIDocGenerator } = require('./src/utils/apiDocGenerator');
+const { validateEnvironment } = require('./src/utils/envValidator');
+
+const {
+  sanitizationMiddleware,
+  securityHeadersMiddleware,
+  requestSizeLimitMiddleware,
+  inputValidationMiddleware,
+} = require('./src/middleware/securityMiddleware');
 
 const logger = getLogger('Server');
+
+// Validate environment before starting server
+try {
+  validateEnvironment();
+} catch (err) {
+  logger.error('CRITICAL: Environment validation failed', { error: err.message });
+  if (process.env.NODE_ENV === 'production') {
+    process.exit(1);
+  }
+}
+
 const app = express();
 
 // CORS must be before helmet so preflight OPTIONS requests get proper headers
@@ -102,6 +121,12 @@ app.use(express.json());
 
 // ─── Enterprise Middleware Stack ───
 
+// Security hardening
+app.use(securityHeadersMiddleware);
+app.use(sanitizationMiddleware);
+app.use(requestSizeLimitMiddleware);
+app.use(inputValidationMiddleware);
+
 // Request logging
 app.use(requestLogger);
 
@@ -138,11 +163,13 @@ app.use('/api/auth/admin/reset-password', authLimiter);
 
 // Route imports
 const authRoutes = require('./src/routes/authRoutes');
+const healthRoutes = require('./src/routes/healthRoutes');
+const analyticsRoutes = require('./src/routes/analyticsRoutes');
+const advancedAnalyticsRoutes = require('./src/routes/advancedAnalyticsRoutes');
 const mealRoutes = require('./src/routes/mealRoutes');
 const expenseRoutes = require('./src/routes/expenseRoutes');
 const feedbackRoutes = require('./src/routes/feedbackRoutes');
 const menuRoutes = require('./src/routes/menuRoutes');
-const analyticsRoutes = require('./src/routes/analyticsRoutes');
 const taskRoutes = require('./src/routes/taskRoutes');
 const notificationRoutes = require('./src/routes/notificationRoutes');
 const configRoutes = require('./src/routes/configRoutes');
@@ -345,11 +372,13 @@ app.post(
 
 // Mount routes
 app.use('/api/auth', authRoutes);
+app.use('/api/health', healthRoutes);
 app.use('/api/meals', mealRoutes);
 app.use('/api/expenses', expenseRoutes);
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/menu', menuRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/advanced-analytics', advancedAnalyticsRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/config', configRoutes);

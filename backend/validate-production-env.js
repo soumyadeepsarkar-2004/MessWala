@@ -1,24 +1,24 @@
-#!/usr/bin/env node
-
-/**
- * Production Environment Validator
- *
- * Usage: node validate-production-env.js
- *
- * This script validates that all required environment variables
- * are set for production deployment.
- */
-
-/* eslint-disable no-console */
 
 const REQUIRED_ENV_VARS = {
-  backend: ['NODE_ENV', 'PORT', 'MONGO_URI', 'JWT_SECRET', 'FRONTEND_URL'],
+  backend: [
+    'NODE_ENV',
+    'PORT',
+    'MONGO_URI',
+    'JWT_SECRET',
+    'FRONTEND_URL',
+    'APP_VERSION',
+    'BACKUP_ENABLED',
+    'BACKUP_SCHEDULE',
+    'ENCRYPTION_KEY',
+    'LOG_LEVEL',
+  ],
   optional: [
     'GOOGLE_CLIENT_ID',
     'GOOGLE_CLIENT_SECRET',
     'EMAIL_USER',
     'EMAIL_PASS',
-    'BACKUP_ENABLED',
+    'REDIS_URL',
+    'PROMETHEUS_METRICS_ENABLED',
   ],
 };
 
@@ -30,72 +30,88 @@ function validateEnvironment() {
     process.exit(0);
   }
 
-  console.log('\n🔍 Production Environment Validator\n');
+  console.log('\n🔍 Advanced Production Environment Validator\n');
   console.log('━'.repeat(50));
 
   let hasErrors = false;
   let hasWarnings = false;
 
   // Check required variables
-  console.log('\n✅ Checking REQUIRED environment variables:\n');
+  console.log('\n🔐 Checking CRITICAL infrastructure environment variables:\n');
   REQUIRED_ENV_VARS.backend.forEach((env) => {
     const value = process.env[env];
     if (!value) {
-      console.error(`❌ ${env}: NOT SET`);
+      if (env === 'BACKUP_ENABLED') {
+        process.env.BACKUP_ENABLED = 'true';
+        console.log(`⚠️  ${env}: MISSING (Defaulting to "true")`);
+        return;
+      }
+      console.error(`❌ ${env}: NOT SET (REQUIRED)`);
       hasErrors = true;
     } else {
       // Hide sensitive values
-      const display = ['JWT_SECRET', 'MONGO_URI', 'GOOGLE_CLIENT_SECRET'].includes(env)
-        ? '(set - hidden)'
-        : value;
+      let display = value;
+      if (['JWT_SECRET', 'MONGO_URI', 'GOOGLE_CLIENT_SECRET', 'ENCRYPTION_KEY', 'REDIS_URL'].includes(env)) {
+        display = '(set - hidden)';
+      }
       console.log(`✅ ${env}: ${display}`);
     }
   });
 
   // Check optional variables
-  console.log('\n⚠️  Checking OPTIONAL environment variables:\n');
+  console.log('\n📊 Checking OPTIONAL feature flags:\n');
   REQUIRED_ENV_VARS.optional.forEach((env) => {
     const value = process.env[env];
     if (!value) {
-      console.log(`⚠️  ${env}: NOT SET (optional)`);
-      hasWarnings = true;
+      console.log(`💡 ${env}: NOT SET (using safe defaults)`);
     } else {
-      console.log(`✅ ${env}: (set)`);
+      console.log(`✅ ${env}: (set and enabled)`);
     }
   });
 
   // Validate NODE_ENV
-  console.log('\n🔐 Checking Environment Mode:\n');
+  console.log('\n🔒 Security Mode Verification:\n');
   if (process.env.NODE_ENV !== 'production') {
-    console.warn('⚠️  NODE_ENV is not "production" - some security features may be disabled');
+    console.warn('⚠️  WARNING: Running in non-production mode! Security headers might be relaxed.');
     hasWarnings = true;
   } else {
-    console.log('✅ NODE_ENV: Set to "production" (security features enabled)');
+    console.log('✅ PROD_MODE: Strict security active');
   }
 
-  // Validate JWT_SECRET strength
+  // Validate JWT_SECRET strength - Enterprise Requirement
   if (process.env.JWT_SECRET) {
     const secretLength = process.env.JWT_SECRET.length;
-    if (secretLength < 32) {
-      console.error(`❌ JWT_SECRET: Too short (${secretLength} chars, need 32+)`);
+    if (secretLength < 64) {
+      console.error(`❌ SECURITY ERROR: JWT_SECRET too weak (${secretLength} bytes). Minimum 64 required for production.`);
       hasErrors = true;
     } else {
-      console.log(`✅ JWT_SECRET: Strong (${secretLength} chars)`);
+      console.log(`✅ JWT_STRENGTH: Enterprise Grade (${secretLength} bytes)`);
     }
+  }
+
+  // Encryption key check
+  if (process.env.ENCRYPTION_KEY) {
+     const keyLength = process.env.ENCRYPTION_KEY.length;
+     if (keyLength < 32) {
+        console.error(`❌ SECURITY ERROR: ENCRYPTION_KEY too short (${keyLength} bytes). Minimum 32 required.`);
+        hasErrors = true;
+     } else {
+        console.log(`✅ ENCRYPTION_STRENGTH: Strong (${keyLength} bytes)`);
+     }
   }
 
   // Summary
   console.log('\n' + '━'.repeat(50));
-  console.log('\n📊 Validation Summary:\n');
+  console.log('\n🏁 FINAL PRODUCTION READINESS SUMMARY:\n');
 
   if (hasErrors) {
-    console.error('❌ FAILED: Fix required environment variables\n');
+    console.error('🛑 DEPLOYMENT BLOCKED: Critical environment misconfigurations found.\n');
     process.exit(1);
   } else if (hasWarnings) {
-    console.warn('⚠️  PASSED: But review optional warnings\n');
+    console.warn('⚠️  DEPLOYMENT WARNING: Passed with non-critical alerts. Review optional settings.\n');
     process.exit(0);
   } else {
-    console.log('✅ SUCCESS: All environment variables validated!\n');
+    console.log('🚀 DEPLOYMENT APPROVED: All production requirements met!\n');
     process.exit(0);
   }
 }

@@ -5,7 +5,7 @@
 
 const xss = require('xss-clean');
 const mongoSanitize = require('express-mongo-sanitize');
-const { getLogger } = require('./logger');
+const { getLogger } = require('../utils/logger');
 
 const logger = getLogger('SecurityMiddleware');
 
