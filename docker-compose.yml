@@ -5,60 +5,85 @@ services:
     image: mongo:7-alpine
     container_name: messwala-db
     environment:
-      # ⚠️ For production, use strong credentials from environment variables
+      # 🚨 PRODUCTION: Use strong credentials from environment variables
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER:-admin}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-insecure-default}
       MONGO_INITDB_DATABASE: messwala
     ports:
-      - '27017:27017'
+      - '${MONGO_PORT:-27017}:27017'
     volumes:
       - mongodb_data:/data/db
+    restart: unless-stopped
     healthcheck:
       test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 10s
     networks:
       - messwala
+    # Enable security in production
+    command: mongod --auth --bind_ip_all
 
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
     container_name: messwala-backend
+    depends_on:
+      mongodb:
+        condition: service_healthy
     environment:
       # 🚨 PRODUCTION: Set NODE_ENV=production for security hardening
       NODE_ENV: ${NODE_ENV:-development}
       PORT: 5000
       MONGO_URI: ${MONGO_URI:-mongodb://admin:${MONGO_ROOT_PASSWORD:-insecure-default}@mongodb:27017/messwala?authSource=admin}
-      # ⚠️ WARNING: MONGO_ROOT_PASSWORD must be set in environment, never in code
-      # 🚨 PRODUCTION: Generate a cryptographically secure random string (min 32 chars)
       JWT_SECRET: ${JWT_SECRET:-dev-secret-change-in-production}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:-dev-encryption-key-change-in-production}
+      APP_VERSION: ${APP_VERSION:-2.0.0}
+      BACKUP_ENABLED: ${BACKUP_ENABLED:-true}
+      BACKUP_SCHEDULE: ${BACKUP_SCHEDULE:-0 2 * * *}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
-      # 🚨 PRODUCTION: Set to your production frontend URL (required)
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
+      REDIS_URL: ${REDIS_URL}
+      PROMETHEUS_METRICS_ENABLED: ${PROMETHEUS_METRICS_ENABLED:-false}
     ports:
       - '5000:5000'
-    depends_on:
-      mongodb:
-        condition: service_healthy
+    volumes:
+      - ./backend/src:/app/src
+      - ./backend/logs:/app/logs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     networks:
       - messwala
-    restart: unless-stopped
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:5000/api}
     container_name: messwala-frontend
     ports:
-      - '80:80'
+      - '${FRONTEND_PORT:-80}:80'
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     environment:
-      # 🚨 PRODUCTION: Set to your production backend URL
-      VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:5000}
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:5000/api}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
     networks:
       - messwala
     restart: unless-stopped
