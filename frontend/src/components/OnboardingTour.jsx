@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react';
 import * as JoyrideModule from 'react-joyride';
-const Joyride = (JoyrideModule.default || JoyrideModule.Joyride || JoyrideModule).default || (JoyrideModule.default || JoyrideModule.Joyride || JoyrideModule);
+const Joyride =
+  (JoyrideModule.default || JoyrideModule.Joyride || JoyrideModule).default ||
+  JoyrideModule.default ||
+  JoyrideModule.Joyride ||
+  JoyrideModule;
 const { STATUS } = JoyrideModule;
 import { useAuth } from '../context/AuthContext';
 

@@ -1,4 +1,3 @@
-
 /* eslint-disable no-console */
 
 /**
@@ -57,7 +56,11 @@ function validateEnvironment() {
     } else {
       // Hide sensitive values
       let display = value;
-      if (['JWT_SECRET', 'MONGO_URI', 'GOOGLE_CLIENT_SECRET', 'ENCRYPTION_KEY', 'REDIS_URL'].includes(env)) {
+      if (
+        ['JWT_SECRET', 'MONGO_URI', 'GOOGLE_CLIENT_SECRET', 'ENCRYPTION_KEY', 'REDIS_URL'].includes(
+          env,
+        )
+      ) {
         display = '(set - hidden)';
       }
       console.log(`✅ ${env}: ${display}`);
@@ -88,7 +91,9 @@ function validateEnvironment() {
   if (process.env.JWT_SECRET) {
     const secretLength = process.env.JWT_SECRET.length;
     if (secretLength < 64) {
-      console.error(`❌ SECURITY ERROR: JWT_SECRET too weak (${secretLength} bytes). Minimum 64 required for production.`);
+      console.error(
+        `❌ SECURITY ERROR: JWT_SECRET too weak (${secretLength} bytes). Minimum 64 required for production.`,
+      );
       hasErrors = true;
     } else {
       console.log(`✅ JWT_STRENGTH: Enterprise Grade (${secretLength} bytes)`);
@@ -97,13 +102,15 @@ function validateEnvironment() {
 
   // Encryption key check
   if (process.env.ENCRYPTION_KEY) {
-     const keyLength = process.env.ENCRYPTION_KEY.length;
-     if (keyLength < 32) {
-        console.error(`❌ SECURITY ERROR: ENCRYPTION_KEY too short (${keyLength} bytes). Minimum 32 required.`);
-        hasErrors = true;
-     } else {
-        console.log(`✅ ENCRYPTION_STRENGTH: Strong (${keyLength} bytes)`);
-     }
+    const keyLength = process.env.ENCRYPTION_KEY.length;
+    if (keyLength < 32) {
+      console.error(
+        `❌ SECURITY ERROR: ENCRYPTION_KEY too short (${keyLength} bytes). Minimum 32 required.`,
+      );
+      hasErrors = true;
+    } else {
+      console.log(`✅ ENCRYPTION_STRENGTH: Strong (${keyLength} bytes)`);
+    }
   }
 
   // Summary
@@ -114,7 +121,9 @@ function validateEnvironment() {
     console.error('🛑 DEPLOYMENT BLOCKED: Critical environment misconfigurations found.\n');
     process.exit(1);
   } else if (hasWarnings) {
-    console.warn('⚠️  DEPLOYMENT WARNING: Passed with non-critical alerts. Review optional settings.\n');
+    console.warn(
+      '⚠️  DEPLOYMENT WARNING: Passed with non-critical alerts. Review optional settings.\n',
+    );
     process.exit(0);
   } else {
     console.log('🚀 DEPLOYMENT APPROVED: All production requirements met!\n');
