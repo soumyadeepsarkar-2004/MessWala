@@ -15,7 +15,7 @@ jobs:
   release:
     name: Create Release
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: false  # Disabled - manual releases only
 
     steps:
       - uses: actions/checkout@v4
