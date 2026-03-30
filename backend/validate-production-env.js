@@ -1,4 +1,10 @@
 
+/* eslint-disable no-console */
+
+/**
+ * Production Environment Validator
+ */
+
 const REQUIRED_ENV_VARS = {
   backend: [
     'NODE_ENV',

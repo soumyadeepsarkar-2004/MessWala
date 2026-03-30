@@ -86,7 +86,6 @@ services:
       retries: 3
     networks:
       - messwala
-    restart: unless-stopped
 
 volumes:
   mongodb_data:
