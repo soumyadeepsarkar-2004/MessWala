@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "private": true,
     "scripts": {
-        "postinstall": "cd backend && npm install",
+        "postinstall": "cd backend && npm ci",
         "start": "node backend/server.js",
         "dev": "concurrently \"cd backend && npm run dev\" \"cd frontend && npm run dev\""
     },
@@ -11,6 +11,6 @@
         "concurrently": "^8.2.0"
     },
     "engines": {
-        "node": ">=18.0.0"
+        "node": ">=20.0.0"
     }
 }
